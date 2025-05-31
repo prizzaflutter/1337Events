@@ -1,0 +1,59 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_elsewheres/data/Oauth/repositories/o_auth_repository_impl.dart';
+import 'package:the_elsewheres/data/Oauth/services/o_auth_service.dart';
+import 'package:the_elsewheres/data/firebase/repository/firebase_repository_impl.dart';
+import 'package:the_elsewheres/data/firebase/service/firebase_service.dart';
+import 'package:the_elsewheres/data/local/service/local_service.dart';
+import 'package:the_elsewheres/domain/Oauth/repositories/o_auth_repository.dart';
+import 'package:the_elsewheres/domain/Oauth/usecases/authenticate_usecase.dart';
+import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.dart';
+import 'package:the_elsewheres/domain/Oauth/usecases/is_logged_in_usecase.dart';
+import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/repository/FirebaseRepository.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/save_user_profile_usecase.dart';
+import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
+
+GetIt getIt = GetIt.instance;
+
+class GetItService {
+  Future<void> setUpLocator() async {
+    getIt.registerSingleton<OAuthService>(OAuthService());
+    getIt.registerSingleton<OAuthRepository>(
+      OAuthRepositoryImpl(getIt<OAuthService>()),
+    );
+
+    // local storage
+    getIt.registerSingleton<LocalStorageService>(LocalStorageService(await SharedPreferences.getInstance()));
+
+    // firebase storage
+    getIt.registerSingleton<FirebaseService>(FirebaseService(getIt<LocalStorageService>(), FirebaseFirestore.instance));
+    getIt.registerSingleton<FirebaseRepository>(FirebaseRepositoryImpl(getIt<FirebaseService>()));
+    getIt.registerSingleton<SaveUserProfileUseCase>(SaveUserProfileUseCase(getIt<FirebaseRepository>()));
+
+
+
+    getIt.registerSingleton<AuthenticateUseCase>(
+      AuthenticateUseCase(getIt<OAuthRepository>()),
+    );
+    getIt.registerSingleton<IsLoggedInUseCase>(
+      IsLoggedInUseCase(getIt<OAuthRepository>()),
+    );
+    getIt.registerSingleton<LogOutUseCase>(
+      LogOutUseCase(getIt<OAuthRepository>()),
+    );
+    getIt.registerSingleton<GetUserProfileUseCase>(
+      GetUserProfileUseCase(getIt<OAuthRepository>()),
+    );
+    getIt.registerSingleton<LoginCubit>(
+      LoginCubit(
+        getIt<SaveUserProfileUseCase>(),
+        getIt<AuthenticateUseCase>(),
+        getIt<LogOutUseCase>(),
+        getIt<GetUserProfileUseCase>(),
+        getIt<IsLoggedInUseCase>(),
+      ),
+    );
+  }
+}
