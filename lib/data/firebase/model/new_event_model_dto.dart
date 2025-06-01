@@ -28,7 +28,7 @@ class NewEventModelDto {
   factory NewEventModelDto.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return NewEventModelDto(
-      id: data['id'] as int,
+      id: int.parse(doc.id) ,
       eventImage: data['eventImage'] as String,
       rate: data['rate'] as double,
       tag: data['tag'] as String,

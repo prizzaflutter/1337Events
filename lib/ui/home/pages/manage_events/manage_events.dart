@@ -1,35 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
-
-// Mock models - replace with your actual models
-class EventModel {
-  final int id;
-  final String eventName;
-  final String eventDescription;
-  final String tag;
-  final DateTime startDate;
-  final DateTime endDate;
-  final String eventImage;
-  final String campus;
-  final String place;
-  final double rate;
-  final bool isActive;
-
-  EventModel({
-    required this.id,
-    required this.eventName,
-    required this.eventDescription,
-    required this.tag,
-    required this.startDate,
-    required this.endDate,
-    required this.eventImage,
-    required this.campus,
-    required this.place,
-    required this.rate,
-    this.isActive = true,
-  });
-}
+import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
+import 'package:the_elsewheres/ui/home/pages/manage_events/Edit_event.dart';
+import 'package:the_elsewheres/ui/view_models/event_cubit/event_cubit.dart';
 
 class ManageEvents extends StatefulWidget {
   final UserProfile? userProfile;
@@ -48,11 +25,8 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
   String _sortBy = 'Date';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> _filterOptions = ['All', 'Upcoming', 'Ended', 'Cancelled', 'Pending'];
-  final List<String> _sortOptions = ['Date', 'Name', 'Rating'];
-
-  // Mock data - replace with your actual data source
-  List<EventModel>? _allEvents;
+  final List<String> _filterOptions = ['All', 'Upcoming', 'Ended', 'Cancelled', 'Active'];
+  final List<String> _sortOptions = ['Date', 'Name', 'Campus'];
 
   @override
   void initState() {
@@ -69,6 +43,9 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
       curve: Curves.easeInOut,
     ));
     _animationController.forward();
+
+    // Start listening to events when the widget initializes
+    context.read<EventCubit>().listenToEventsForStaff();
   }
 
   @override
@@ -78,8 +55,8 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     super.dispose();
   }
 
-  List<EventModel> get _filteredEvents {
-    List<EventModel> filtered = _allEvents;
+  List<NewEventModel> _filterAndSortEvents(List<NewEventModel> events) {
+    List<NewEventModel> filtered = List.from(events);
 
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
@@ -91,20 +68,24 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     }
 
     // Apply status filter
+    final now = DateTime.now();
     switch (_selectedFilter) {
+      case 'Upcoming':
+        filtered = filtered.where((event) =>
+            event.startDate.isAfter(now)
+        ).toList();
+        break;
+      case 'Ended':
+        filtered = filtered.where((event) =>
+            event.endDate.isBefore(now)
+        ).toList();
+        break;
       case 'Active':
         filtered = filtered.where((event) =>
-        event.isActive && event.startDate.isAfter(DateTime.now())
+        event.startDate.isBefore(now) && event.endDate.isAfter(now)
         ).toList();
         break;
-      case 'Completed':
-        filtered = filtered.where((event) =>
-            event.endDate.isBefore(DateTime.now())
-        ).toList();
-        break;
-      case 'Cancelled':
-        filtered = filtered.where((event) => !event.isActive).toList();
-        break;
+    // Add more filters as needed
     }
 
     // Apply sorting
@@ -112,8 +93,8 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
       case 'Name':
         filtered.sort((a, b) => a.eventName.compareTo(b.eventName));
         break;
-      case 'Rating':
-        filtered.sort((a, b) => b.rate.compareTo(a.rate));
+      case 'Campus':
+        filtered.sort((a, b) => a.location.campus.compareTo(b.location.campus));
         break;
       case 'Date':
       default:
@@ -143,13 +124,26 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                   children: [
                     _buildSearchAndFilters(colorScheme),
                     const SizedBox(height: 16),
-                    _buildStatsCards(colorScheme),
+                    // Stats cards will be built inside BlocBuilder to access events
+                    BlocBuilder<EventCubit, EventState>(
+                      builder: (context, state) {
+                        if (state is StaffListenEventSuccessState) {
+                          return _buildStatsCards(colorScheme, state.events);
+                        }
+                        return _buildStatsCards(colorScheme, []);
+                      },
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
-            _buildEventsList(colorScheme),
+            // Events list with BlocBuilder
+            BlocBuilder<EventCubit, EventState>(
+              builder: (context, state) {
+                return _buildEventsListWithState(colorScheme, state);
+              },
+            ),
           ],
         ),
       ),
@@ -187,38 +181,6 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
           ),
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: () => _refreshEvents(),
-        ),
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
-          onSelected: (value) => _handleMenuAction(value),
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'export',
-              child: Row(
-                children: [
-                  Icon(Icons.download),
-                  SizedBox(width: 8),
-                  Text('Export Events'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'settings',
-              child: Row(
-                children: [
-                  Icon(Icons.settings),
-                  SizedBox(width: 8),
-                  Text('Settings'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -311,19 +273,46 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     );
   }
 
-  Widget _buildStatsCards(ColorScheme colorScheme) {
-    final activeEvents = _allEvents.where((e) => e.isActive && e.startDate.isAfter(DateTime.now())).length;
-    final completedEvents = _allEvents.where((e) => e.endDate.isBefore(DateTime.now())).length;
-    final totalEvents = _allEvents.length;
+  Widget _buildStatsCards(ColorScheme colorScheme, List<NewEventModel> events) {
+    final now = DateTime.now();
+    final activeEvents = events.where((e) =>
+    e.startDate.isBefore(now) && e.endDate.isAfter(now)
+    ).length;
+    final upcomingEvents = events.where((e) => e.startDate.isAfter(now)).length;
+    final completedEvents = events.where((e) => e.endDate.isBefore(now)).length;
+    final totalEvents = events.length;
 
-    return Row(
-      children: [
-        Expanded(child: _buildStatCard(colorScheme, 'Total', totalEvents.toString(), Icons.event, Colors.blue)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildStatCard(colorScheme, 'Active', activeEvents.toString(), Icons.play_circle, Colors.green)),
-        const SizedBox(width: 12),
-        Expanded(child: _buildStatCard(colorScheme, 'Completed', completedEvents.toString(), Icons.check_circle, Colors.orange)),
-      ],
+    // Create a list of stat data
+    final List<StatCardData> statsData = [
+      StatCardData('Total', totalEvents.toString(), Icons.event, Colors.blue),
+      StatCardData('Active', activeEvents.toString(), Icons.play_circle, Colors.green),
+      StatCardData('Upcoming', upcomingEvents.toString(), Icons.schedule, Colors.orange),
+      StatCardData('Completed', completedEvents.toString(), Icons.check_circle, Colors.grey),
+    ];
+
+    return SizedBox(
+      height: 110.h, // Fixed height for the grid
+      child: GridView.builder(
+        scrollDirection: Axis.horizontal,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          mainAxisExtent: 100,
+          crossAxisCount: 1, // 2 columns
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
+          childAspectRatio: 10/6, // Adjust the aspect ratio as needed
+        ),
+        itemCount: statsData.length,
+        itemBuilder: (context, index) {
+          final stat = statsData[index];
+          return _buildStatCard(
+            colorScheme,
+            stat.title,
+            stat.value,
+            stat.icon,
+            stat.iconColor,
+          );
+        },
+      ),
     );
   }
 
@@ -359,10 +348,93 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     );
   }
 
-  Widget _buildEventsList(ColorScheme colorScheme) {
-    final filteredEvents = _filteredEvents;
+  Widget _buildEventsListWithState(ColorScheme colorScheme, EventState state) {
+    if (state is StaffListenEventLoadingState) {
+      return const SliverToBoxAdapter(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
 
-    if (filteredEvents.isEmpty) {
+    if (state is StaffListenEventErrorState) {
+      return SliverToBoxAdapter(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: colorScheme.error,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Error loading events',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  state.errorMessage,
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.read<EventCubit>().listenToEventsForStaff(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (state is StaffListenEventSuccessState) {
+      final filteredEvents = _filterAndSortEvents(state.events);
+      return _buildEventsList(colorScheme, filteredEvents);
+    }
+
+    // Initial state or unknown state
+    return SliverToBoxAdapter(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.event_note,
+                size: 64,
+                color: colorScheme.onSurface.withOpacity(0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Loading events...',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventsList(ColorScheme colorScheme, List<NewEventModel> events) {
+    if (events.isEmpty) {
       return SliverToBoxAdapter(
         child: Center(
           child: Padding(
@@ -401,21 +473,23 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
               (context, index) {
-            final event = filteredEvents[index];
+            final event = events[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child: _buildEventCard(event, colorScheme),
             );
           },
-          childCount: filteredEvents.length,
+          childCount: events.length,
         ),
       ),
     );
   }
 
-  Widget _buildEventCard(EventModel event, ColorScheme colorScheme) {
-    final isUpcoming = event.startDate.isAfter(DateTime.now());
-    final isPast = event.endDate.isBefore(DateTime.now());
+  Widget _buildEventCard(NewEventModel event, ColorScheme colorScheme) {
+    final now = DateTime.now();
+    final isUpcoming = event.startDate.isAfter(now);
+    final isPast = event.endDate.isBefore(now);
+    final isActive = event.startDate.isBefore(now) && event.endDate.isAfter(now);
 
     return Card(
       elevation: 2,
@@ -441,7 +515,17 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Icon(
+                      child: event.eventImage != null && event.eventImage!.isNotEmpty
+                          ? Image.network(
+                        event.eventImage!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.event,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 32,
+                        ),
+                      )
+                          : Icon(
                         Icons.event,
                         color: colorScheme.onSurfaceVariant,
                         size: 32,
@@ -467,7 +551,7 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            _buildStatusChip(event, colorScheme, isUpcoming, isPast),
+                            _buildStatusChip(colorScheme, isUpcoming, isPast, isActive),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -519,27 +603,12 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      '${event.campus}, ${event.place}',
+                      '${event.location.campus}, ${event.location.place}',
                       style: TextStyle(
                         fontSize: 12,
                         color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                       overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Row(
-                    children: List.generate(5, (index) => Icon(
-                      index < event.rate.floor() ? Icons.star : Icons.star_outline,
-                      size: 14,
-                      color: Colors.amber,
-                    )),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    event.rate.toStringAsFixed(1),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -555,14 +624,9 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                     label: const Text('View'),
                   ),
                   TextButton.icon(
-                    onPressed: isUpcoming ? () => _editEvent(event) : null,
+                    onPressed: !isUpcoming ? () => _editEvent(event) : null,
                     icon: const Icon(Icons.edit, size: 16),
                     label: const Text('Edit'),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => _duplicateEvent(event),
-                    icon: const Icon(Icons.copy, size: 16),
-                    label: const Text('Duplicate'),
                   ),
                   TextButton.icon(
                     onPressed: () => _deleteEvent(event),
@@ -581,27 +645,27 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     );
   }
 
-  Widget _buildStatusChip(EventModel event, ColorScheme colorScheme, bool isUpcoming, bool isPast) {
+  Widget _buildStatusChip(ColorScheme colorScheme, bool isUpcoming, bool isPast, bool isActive) {
     String status;
     Color backgroundColor;
     Color textColor;
 
-    if (!event.isActive) {
-      status = 'Cancelled';
-      backgroundColor = colorScheme.errorContainer;
-      textColor = colorScheme.error;
-    } else if (isPast) {
+    if (isPast) {
       status = 'Completed';
       backgroundColor = Colors.green.shade100;
       textColor = Colors.green.shade700;
-    } else if (isUpcoming) {
-      status = 'Upcoming';
+    } else if (isActive) {
+      status = 'Active';
       backgroundColor = Colors.blue.shade100;
       textColor = Colors.blue.shade700;
-    } else {
-      status = 'Ongoing';
+    } else if (isUpcoming) {
+      status = 'Upcoming';
       backgroundColor = Colors.orange.shade100;
       textColor = Colors.orange.shade700;
+    } else {
+      status = 'Scheduled';
+      backgroundColor = colorScheme.surfaceVariant;
+      textColor = colorScheme.onSurfaceVariant;
     }
 
     return Container(
@@ -623,29 +687,17 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
 
   // Action Methods
   void _navigateToAddEvent() {
-    // Navigate to AddEventPage
+    context.go('/home/add-event', extra: widget.userProfile);
     print('Navigate to Add Event');
   }
 
   void _refreshEvents() {
-    setState(() {
-      // Refresh events from data source
-    });
+    context.read<EventCubit>().listenToEventsForStaff();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Events refreshed')),
+      const SnackBar(content: Text('Refreshing events...')),
     );
   }
 
-  void _handleMenuAction(String action) {
-    switch (action) {
-      case 'export':
-        _exportEvents();
-        break;
-      case 'settings':
-        _openSettings();
-        break;
-    }
-  }
 
   void _exportEvents() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -653,12 +705,9 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     );
   }
 
-  void _openSettings() {
-    // Navigate to settings
-    print('Open Settings');
-  }
 
-  void _viewEventDetails(EventModel event) {
+
+  void _viewEventDetails(NewEventModel event) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -667,7 +716,7 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     );
   }
 
-  Widget _buildEventDetailsSheet(EventModel event) {
+  Widget _buildEventDetailsSheet(NewEventModel event) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return DraggableScrollableSheet(
@@ -741,8 +790,44 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                       _buildDetailRow('End Date',
                           '${event.endDate.day}/${event.endDate.month}/${event.endDate.year} ${event.endDate.hour.toString().padLeft(2, '0')}:${event.endDate.minute.toString().padLeft(2, '0')}',
                           Icons.schedule_outlined, colorScheme),
-                      _buildDetailRow('Location', '${event.campus}, ${event.place}', Icons.location_on, colorScheme),
-                      _buildDetailRow('Rating', '${event.rate}/5.0', Icons.star, colorScheme),
+                      _buildDetailRow('Location', '${event.location.campus}, ${event.location.place}', Icons.location_on, colorScheme),
+                      // todo : should i set event.capaity peaope insted of 10
+                      _buildDetailRow('Capacity', '10 people', Icons.people, colorScheme),
+                      if (event.eventImage != null && event.eventImage!.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            Text(
+                              'Event Image',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                event.eventImage!,
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  width: double.infinity,
+                                  height: 200,
+                                  color: colorScheme.surfaceVariant,
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    color: colorScheme.onSurfaceVariant,
+                                    size: 48,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       const SizedBox(height: 30),
                       Row(
                         children: [
@@ -816,23 +901,22 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     );
   }
 
-  void _editEvent(EventModel event) {
+  void _editEvent(NewEventModel event) {
     // Navigate to edit event page
     print('Edit event: ${event.eventName}');
+    // context.go('/edit-event', extra: event);
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return EditEventPage(
+        event: event,
+      );
+    }));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Editing ${event.eventName}')),
     );
   }
 
-  void _duplicateEvent(EventModel event) {
-    // Create a copy of the event
-    print('Duplicate event: ${event.eventName}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${event.eventName} duplicated')),
-    );
-  }
 
-  void _deleteEvent(EventModel event) {
+  void _deleteEvent(NewEventModel event) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -853,9 +937,8 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              setState(() {
-                _allEvents.removeWhere((e) => e.id == event.id);
-              });
+              // Call your EventCubit delete method here
+              context.read<EventCubit>().deleteEvent(event.id.toString());
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${event.eventName} deleted')),
               );
@@ -870,4 +953,15 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
       ),
     );
   }
+}
+
+
+// todo: this is for my stat card data: gridview .builder
+class StatCardData {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color iconColor;
+
+  StatCardData(this.title, this.value, this.icon, this.iconColor);
 }

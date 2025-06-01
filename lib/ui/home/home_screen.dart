@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _isStaff = widget.userProfile?.isStaff ?? false;
-    _isStaff = true; // For testing purposes
+    // _isStaff = true; // For testing purposes
     debugPrint("User Profile: ${widget.userProfile?.isStaff}");
 
     _pages = [

@@ -15,6 +15,7 @@ abstract class FirebaseRepository {
  Future<void> deleteEvent (String eventId);
  Stream<List<NewEventModelDto>> listenToEvents();
  Stream<List<NewEventModelDto>> listenToEventsByTags(List<String> tags);
+ Stream<List<NewEventModelDto>> listenToUpComingEvents();
 
  // todo : storage management
 

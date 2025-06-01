@@ -23,6 +23,31 @@ class NewEventModel {
     required this.location,
   });
 
+
+ NewEventModel copyWith({
+    int? id,
+    String? eventImage,
+    double? rate,
+    String? tag,
+    String? eventName,
+    String? eventDescription,
+    DateTime? startDate,
+    DateTime? endDate,
+    LocationEventModel? location,
+  }) {
+    return NewEventModel(
+      id: id ?? this.id,
+      eventImage: eventImage ?? this.eventImage,
+      rate: rate ?? this.rate,
+      tag: tag ?? this.tag,
+      eventName: eventName ?? this.eventName,
+      eventDescription: eventDescription ?? this.eventDescription,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      location: location ?? this.location,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -67,6 +92,16 @@ class LocationEventModel {
 
   Map<String, dynamic> toJson() {
     return {'campus': campus, 'place': place};
+  }
+
+  LocationEventModel copyWith({
+    String? campus,
+    String? place,
+  }) {
+    return LocationEventModel(
+      campus: campus ?? this.campus,
+      place: place ?? this.place,
+    );
   }
 
   LocationEventModelDto toDto() {

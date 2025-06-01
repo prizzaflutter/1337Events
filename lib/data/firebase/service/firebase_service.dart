@@ -268,6 +268,7 @@ class FirebaseService {
       throw Exception("Failed to delete event: $e");
     }
   }
+
   // todo : this listen to all events in the Firestore collection
   Stream<List<NewEventModelDto>> listenToEvents() {
     try {
@@ -299,6 +300,26 @@ class FirebaseService {
       throw Exception("Failed to listen to events by tags: $e");
     }
   }
+
+
+// todo : get all Upcoming event and started
+  Stream<List<NewEventModelDto>> listenToUpComingEvents() {
+    try {
+      return _firestore
+          .collection(_eventsCollection)
+          .where('endDate', isGreaterThan: DateTime.now().millisecondsSinceEpoch)
+          .orderBy('startDate') // Optional: order by start date
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          return NewEventModelDto.fromFirestore(doc);
+        }).toList();
+      });
+    } catch (e) {
+      throw Exception("Failed to listen to upcoming events: $e");
+    }
+  }
+
 
   // todo: Storage management functions
   Future<String> uploadEventImageToStorage(

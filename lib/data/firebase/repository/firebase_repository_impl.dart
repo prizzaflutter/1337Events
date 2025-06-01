@@ -75,9 +75,11 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
     // TODO: implement uploadImageToStorage
     throw UnimplementedError();
   }
-  
-  
-  
+
+  @override
+  Stream<List<NewEventModelDto>> listenToUpComingEvents() {
+     return _firebaseService.listenToUpComingEvents();
+  }
 
 
 }

@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
-import 'package:the_elsewheres/domain/firebase/usercases/add_new_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
 import 'package:the_elsewheres/ui/home/pages/new_event_page/widgets_for_new_event/event_preview_widget.dart';
 import 'package:the_elsewheres/ui/home/pages/new_event_page/widgets_for_new_event/event_section_title_widget.dart';
 

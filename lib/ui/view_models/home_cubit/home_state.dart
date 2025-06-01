@@ -8,58 +8,24 @@ final class HomeInitial extends HomeState {
   List<Object?> get props => [];
 }
 
-
-
-// todo: add new event states
-class AddNewEventLoadingState extends HomeState {
+// listen to upcoming event states
+// listen events for staff
+class  StudentListenUpComingLoadingState extends HomeState {
   @override
   List<Object?> get props => [];
 }
-class AddNewEventSuccessState extends HomeState {
+class StudentListenUpComingSuccessState extends HomeState {
+  final List<NewEventModel> events;
+
+  StudentListenUpComingSuccessState(this.events);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [events];
 }
-class AddNewEventErrorState extends HomeState {
+class StudentListenUpComingErrorState extends HomeState {
   final String errorMessage;
 
-  AddNewEventErrorState(this.errorMessage);
-
-  @override
-  List<Object?> get props => [errorMessage];
-}
-
-
-// todo : update event states
-class UpdateNewEventLoadingState extends HomeState {
-  @override
-  List<Object?> get props => [];
-}
-class UpdateNewEventSuccessState extends HomeState {
-  @override
-  List<Object?> get props => [];
-}
-class UpdateNewEventErrorState extends HomeState {
-  final String errorMessage;
-
-  UpdateNewEventErrorState(this.errorMessage);
-
-  @override
-  List<Object?> get props => [errorMessage];
-}
-
-// todo : delete event states
-class DeleteEventLoadingState extends HomeState {
-  @override
-  List<Object?> get props => [];
-}
-class DeleteEventSuccessState extends HomeState {
-  @override
-  List<Object?> get props => [];
-}
-class DeleteEventErrorState extends HomeState {
-  final String errorMessage;
-
-  DeleteEventErrorState(this.errorMessage);
+  StudentListenUpComingErrorState(this.errorMessage);
 
   @override
   List<Object?> get props => [errorMessage];

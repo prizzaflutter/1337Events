@@ -8,8 +8,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:the_elsewheres/dependency_injection/dependency_injection.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/is_logged_in_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/delete_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/staff_listen_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/update_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/save_user_profile_usecase.dart';
 import 'package:the_elsewheres/main_page.dart';
 import 'package:the_elsewheres/ui/core/theme/theme_cubit/theme_cubit.dart';
+import 'package:the_elsewheres/ui/view_models/event_cubit/event_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
 
 import 'firebase_options.dart';
@@ -31,6 +38,13 @@ void main() async {
     providers: [
       BlocProvider(create : (context)=> getIt<LoginCubit>()),
       BlocProvider(create: (context)=> ThemeCubit()..loadThemeMode()),
+      BlocProvider(create:  (context)=> EventCubit(
+          getIt<AddNewEventUseCase>(),
+          getIt<UpdateNewEventUseCase>(),
+          getIt<DeleteEventUseCase>(),
+          getIt<StaffListenEventUseCase>(),
+          getIt<StudentListenEventUseCase>(),
+      )),
     ],
     child: EasyLocalization(
       supportedLocales: [Locale('en'), Locale('ar')],

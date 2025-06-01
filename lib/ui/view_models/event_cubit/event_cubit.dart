@@ -27,10 +27,10 @@ class EventCubit extends Cubit<EventState> {
       emit(AddNewEventErrorState(e.toString()));
     }
   }
-  Future<void> updateEvent(String eventId, NewEventModel event) async {
+  Future<void> updateEvent(String eventId, NewEventModel event, bool updateImage) async {
     emit(UpdateNewEventLoadingState());
     try {
-      await _updateNewEventUseCase.call(eventId, event);
+      await _updateNewEventUseCase.call(eventId, event, updateImage);
       emit(UpdateNewEventSuccessState());
     } catch (e) {
       emit(UpdateNewEventErrorState(e.toString()));
