@@ -1,6 +1,8 @@
 import 'package:the_elsewheres/data/firebase/model/new_event_model_dto.dart';
 
 class NewEventModel {
+  int id = DateTime.now().millisecondsSinceEpoch;
+  final String eventImage;
   final double rate;
   final String tag;
   final String eventName;
@@ -10,6 +12,8 @@ class NewEventModel {
   final LocationEventModel location;
 
   NewEventModel({
+    required this.id,
+    required this.eventImage,
     required this.rate,
     required this.tag,
     required this.eventName,
@@ -21,6 +25,8 @@ class NewEventModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'EventImage': eventImage,
       'rate': rate,
       'tag': tag,
       'eventName': eventName,
@@ -33,6 +39,8 @@ class NewEventModel {
 
   NewEventModelDto toDto() {
     return NewEventModelDto(
+      id: id,
+      eventImage: eventImage,
       rate: rate,
       tag: tag,
       eventName: eventName,

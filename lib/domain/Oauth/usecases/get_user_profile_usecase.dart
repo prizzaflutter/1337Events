@@ -6,7 +6,7 @@ class GetUserProfileUseCase {
 
   GetUserProfileUseCase(this._userRepository);
   // todo : i will use a user model over here later
-  Future<UserProfile> call() async {
+  Future<UserProfile?> call() async {
     return await _userRepository.getUserProfile();
   }
 }

@@ -13,5 +13,5 @@ abstract class OAuthRepository {
   Future<oauth2.Client?> authenticate(BuildContext context);
   Future<bool> isLoggedIn();
   Future<void> logout();
-  Future<UserProfile> getUserProfile();
+  Future<UserProfile?> getUserProfile();
 }

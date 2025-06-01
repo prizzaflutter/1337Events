@@ -9,11 +9,16 @@ abstract class FirebaseRepository {
   Future<void> deleteUserProfile(int userId);
   Future<void> updateUserProfile({required int userId, bool isClubAdmin = false});
 
-
- Future<void> addNewEvent(NewEventModel event);
- Future<void> updateEvent (String eventId, NewEventModelDto updateEvent);
+// todo : event firestore management
+ Future<void> addNewEvent(NewEventModel event, {required String filePath});
+ Future<void> updateEvent (String eventId, NewEventModelDto updateEvent, bool updateImage);
  Future<void> deleteEvent (String eventId);
-
  Stream<List<NewEventModelDto>> listenToEvents();
  Stream<List<NewEventModelDto>> listenToEventsByTags(List<String> tags);
+
+ // todo : storage management
+
+  Future<String> uploadImageToStorage(String filePath, String fileName);
+  Future<String> getImageUrlFromStorage(String fileName);
+  Future<void> deleteImageFromStorage(String fileName);
 }

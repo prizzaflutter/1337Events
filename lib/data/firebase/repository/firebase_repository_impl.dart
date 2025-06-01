@@ -10,8 +10,8 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
   FirebaseRepositoryImpl(this._firebaseService);
 
   @override
-  Future<void> addNewEvent(NewEventModel event)async{
-     return await  _firebaseService.addNewEventToFirestore(event.toDto());
+  Future<void> addNewEvent(NewEventModel event, {required String filePath})async{
+     return await  _firebaseService.addNewEventToFirestore(event.toDto(), filePath: filePath);
   }
 
   @override
@@ -30,9 +30,12 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
   }
 
   @override
-  Future<void> updateEvent(String eventId, NewEventModelDto updateEvent) async {
-    return await _firebaseService.updateEventInFirestore(eventId, updateEvent);
+  Future<void> updateEvent(String eventId, NewEventModelDto updateEvent, bool updateImage) async {
+    return await _firebaseService.updateEventInFirestore(eventId, updateEvent, updateImage);
   }
+  
+  
+  
 
   @override
   Future<void> saveUserProfileToFirestore(UserProfile userProfile) async{
@@ -54,6 +57,27 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
   Future<void> updateUserProfile({required int userId, bool isClubAdmin = false}) async {
       return await _firebaseService.updateUserProfileFields(userId: userId, isClubAdmin: isClubAdmin);
   }
+
+  @override
+  Future<void> deleteImageFromStorage(String fileName) {
+    // TODO: implement deleteImageFromStorage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> getImageUrlFromStorage(String fileName) {
+    // TODO: implement getImageUrlFromStorage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> uploadImageToStorage(String filePath, String fileName) {
+    // TODO: implement uploadImageToStorage
+    throw UnimplementedError();
+  }
+  
+  
+  
 
 
 }

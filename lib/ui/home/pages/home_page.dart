@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 
 class HomePage extends StatelessWidget {
   final UserProfile? userProfile;
   final bool isStaff;
-  final VoidCallback? onAddEvent;
 
   const HomePage({
     super.key,
     required this.userProfile,
     this.isStaff = false,
-    this.onAddEvent,
   });
 
   @override
@@ -87,56 +86,112 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 30),
 
             // Staff Actions Section
-            if (isStaff) ...[
-              const Text(
-                'Staff Actions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333333),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                  border: Border.all(
-                    color: const Color(0xFF667eea).withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
+            Visibility(
+              visible: isStaff,
+              child:
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    _buildStaffActionButton(
-                      icon: Icons.add_circle_outline,
-                      title: 'Add New Event',
-                      subtitle: 'Create and manage events',
-                      onTap: onAddEvent,
+                    const Text(
+                      textAlign: TextAlign.start,
+                      'Staff Actions',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF333333),
+                      ),
                     ),
                     const SizedBox(height: 15),
-                    _buildStaffActionButton(
-                      icon: Icons.event_note,
-                      title: 'Manage Events',
-                      subtitle: 'View and edit existing events',
-                      onTap: () {
-                        // Navigate to manage events
-                      },
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: const Color(0xFF667eea).withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildStaffActionButton(
+                            icon: Icons.add_circle_outline,
+                            title: 'Add New Event',
+                            subtitle: 'Create and manage events',
+                            onTap: ()=> context.go('/home/add-event', extra: userProfile),
+                          ),
+                          const SizedBox(height: 15),
+                          _buildStaffActionButton(
+                            icon: Icons.event_note,
+                            title: 'Manage Events',
+                            subtitle: 'View and edit existing events',
+                              onTap: ()=> context.go('/home/manage-event', extra: userProfile)
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 30),
                   ],
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
+                )
+            ),
+            // if (isStaff) ...[
+            //   const Text(
+            //     'Staff Actions',
+            //     style: TextStyle(
+            //       fontSize: 20,
+            //       fontWeight: FontWeight.bold,
+            //       color: Color(0xFF333333),
+            //     ),
+            //   ),
+            //   const SizedBox(height: 15),
+            //   Container(
+            //     width: double.infinity,
+            //     padding: const EdgeInsets.all(20),
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(15),
+            //       boxShadow: [
+            //         BoxShadow(
+            //           color: Colors.black.withOpacity(0.05),
+            //           blurRadius: 10,
+            //           offset: const Offset(0, 2),
+            //         ),
+            //       ],
+            //       border: Border.all(
+            //         color: const Color(0xFF667eea).withOpacity(0.2),
+            //         width: 1,
+            //       ),
+            //     ),
+            //     child: Column(
+            //       children: [
+            //         _buildStaffActionButton(
+            //           icon: Icons.add_circle_outline,
+            //           title: 'Add New Event',
+            //           subtitle: 'Create and manage events',
+            //           onTap: ()=> context.go('/home/add-event', extra: userProfile),
+            //         ),
+            //         const SizedBox(height: 15),
+            //         _buildStaffActionButton(
+            //           icon: Icons.event_note,
+            //           title: 'Manage Events',
+            //           subtitle: 'View and edit existing events',
+            //           onTap: () {
+            //             // Navigate to manage events
+            //           },
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            //   const SizedBox(height: 30),
+            // ],
 
             // Quick Actions Section
             const Text(
@@ -422,4 +477,5 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
 }

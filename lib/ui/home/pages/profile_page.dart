@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
+import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
+import 'package:the_elsewheres/ui/core/theme/theme_cubit/theme_cubit.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserProfile? userProfile;
-  const ProfilePage({super.key, required this.userProfile});
+  final LogOutUseCase logOutUseCase;
+  const ProfilePage({super.key, required this.userProfile, required this.logOutUseCase});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -56,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: CircleAvatar(
                             radius: 50,
                             backgroundImage: NetworkImage(
-                                widget.userProfile?.image?.versions.medium ??
+                                widget.userProfile?.image.versions.medium ??
                                     'https://via.placeholder.com/200'
                             ),
                             backgroundColor: Colors.grey[300],
@@ -445,21 +450,16 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 16),
           _buildPreferenceItem(
-            icon: Icons.notifications,
-            title: 'Push Notifications',
-            subtitle: 'Receive notifications about updates',
-            value: true,
-            onChanged: (value) {
-              // Handle notification toggle
-            },
-          ),
-          _buildPreferenceItem(
             icon: Icons.dark_mode,
             title: 'Dark Mode',
             subtitle: 'Switch to dark theme',
             value: false,
             onChanged: (value) {
-              // Handle dark mode toggle
+              final themeCubit = context.read<ThemeCubit>();
+              themeCubit.toggleTheme();
+              // setState(() {
+              //   value = !value;
+              // });
             },
           ),
           _buildPreferenceItem(
@@ -471,12 +471,43 @@ class _ProfilePageState extends State<ProfilePage> {
               // Show language selection
             },
           ),
+          _buildPreferenceItem(
+            color: Colors.red[50],
+            icon: Icons.logout,
+            title: 'Logout',
+            subtitle: 'English',
+            isSwitch: false,
+            onTap: () async {
+               // i want to show dialog to confirm logout
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('Are you sure you want to log out?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () async{
+                        await widget.logOutUseCase.call();
+                        context.go('/login');
+                        Navigator.pop(context, true);
+                      },
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                ));
+            },
+          ),
         ],
       ),
     );
   }
 
   Widget _buildPreferenceItem({
+    Color? color,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -486,6 +517,7 @@ class _ProfilePageState extends State<ProfilePage> {
     VoidCallback? onTap,
   }) {
     return ListTile(
+      tileColor: color ?? Colors.white,
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: Colors.grey[600]),
       title: Text(

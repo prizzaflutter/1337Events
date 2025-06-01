@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 
 class UserProfileDto {
+  bool isClubAdmin = false;
   final int id;
   final String email;
   final String login;
@@ -25,7 +26,8 @@ class UserProfileDto {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const UserProfileDto({
+   UserProfileDto({
+     required this.isClubAdmin,
     required this.id,
     required this.email,
     required this.login,
@@ -67,6 +69,7 @@ class UserProfileDto {
 
   factory UserProfileDto.fromJson(Map<String, dynamic> json) {
     return UserProfileDto(
+      isClubAdmin: json['is_club_admin'] as bool? ?? false,
       id: _parseInt(json['id']),
       email: json['email'] as String,
       login: json['login'] as String,
@@ -95,6 +98,7 @@ class UserProfileDto {
   factory UserProfileDto.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return UserProfileDto(
+      isClubAdmin: data['is_club_admin'] as bool? ?? false,
       id: data['id'] as int,
       email: data['email'] as String,
       login: data['login'] as String,
@@ -122,6 +126,7 @@ class UserProfileDto {
 
   Map<String, dynamic> toJson() {
     return {
+      'is_club_admin': isClubAdmin,
       'id': id,
       'email': email,
       'login': login,
@@ -149,6 +154,7 @@ class UserProfileDto {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'is_club_admin': isClubAdmin,
       'id': id,
       'email': email,
       'login': login,
@@ -176,6 +182,7 @@ class UserProfileDto {
 
   UserProfile toDomain() {
     return UserProfile(
+       isClubAdmin: isClubAdmin,
       id: id,
       email: email,
       login: login,

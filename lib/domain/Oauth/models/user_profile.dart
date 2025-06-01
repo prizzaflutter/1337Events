@@ -1,6 +1,7 @@
 import 'package:the_elsewheres/data/Oauth/models/user_profile_model_dto.dart';
 
 class UserProfile{
+  bool isClubAdmin = false;
   final int id;
   final String email;
   final String login;
@@ -24,8 +25,9 @@ class UserProfile{
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const UserProfile({
-    required this.id,
+   UserProfile({
+   required this.isClubAdmin,
+  required this.id,
     required this.email,
     required this.login,
     required this.firstName,
@@ -51,6 +53,7 @@ class UserProfile{
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
+      isClubAdmin: json['is_club_admin'] as bool? ?? false,
       id: json['id'] as int,
       email: json['email'] as String,
       login: json['login'] as String,
@@ -78,6 +81,7 @@ class UserProfile{
 
   Map<String, dynamic> toJson() {
     return {
+      'is_club_admin': isClubAdmin,
       'id': id,
       'email': email,
       'login': login,
@@ -105,6 +109,7 @@ class UserProfile{
 
   UserProfileDto toDto(){
   return  UserProfileDto(
+      isClubAdmin: isClubAdmin,
       id: id,
       email: email,
       login: login,

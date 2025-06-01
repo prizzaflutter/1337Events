@@ -281,12 +281,14 @@ class OAuthService {
   }
 
   // Improved user profile method with better error handling
-  Future<UserProfileDto> getUserProfile() async {
+  Future<UserProfileDto?> getUserProfile() async {
     if (_client == null) {
       final isLoggedIn = await this.isLoggedIn();
       if (!isLoggedIn) {
+        debugPrint("User is not authenticated, cannot fetch profile.");
+        return null;
         // todo : instead of throw exceptio : navigate to login page or ask user for it
-        throw Exception("User is not authenticated");
+        // throw Exception("User is not authenticated");
       }
     }
 

@@ -34,7 +34,7 @@ class LoginCubit extends Cubit<LoginState> {
 
       if (isLoggedIn) {
         debugPrint("User is already logged in");
-       UserProfile userProfile =  await _getUserProfileUseCase.call();
+       UserProfile? userProfile =  await _getUserProfileUseCase.call();
         emit(LoginAlreadyAuthenticated(userProfile:  userProfile));
       } else {
         debugPrint("User is not logged in");
@@ -55,10 +55,15 @@ class LoginCubit extends Cubit<LoginState> {
 
       if (client != null) {
         debugPrint("Authenticated successfully");
-
-        UserProfile userProfile = await _getUserProfileUseCase.call();
-        await _saveUserProfileToFirestore.call(userProfile);
-        emit(LoginSuccess(userProfile: userProfile,  message : "Successfully authenticated with 42!"));
+        UserProfile? userProfile = await _getUserProfileUseCase.call();
+        if (userProfile != null){
+          await _saveUserProfileToFirestore.call(userProfile);
+          emit(LoginSuccess(userProfile: userProfile,  message : "Successfully authenticated with 42!"));
+        }else
+        {
+          debugPrint("User profile is null after authentication");
+          emit(LoginError(message: "Failed to retrieve user profile. Please try again."));
+        }
       } else {
         emit(LoginCancelled());
       }

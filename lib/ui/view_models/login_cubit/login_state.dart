@@ -29,7 +29,7 @@ class LoginSuccess extends LoginState {
 }
 
 class LoginAlreadyAuthenticated extends LoginState {
-  final UserProfile userProfile;
+  final UserProfile? userProfile;
   LoginAlreadyAuthenticated({required this.userProfile});
   @override
   List<Object?> get props => [userProfile];

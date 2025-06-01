@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:the_elsewheres/dependency_injection/dependency_injection.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
+import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
 import 'package:the_elsewheres/ui/home/pages/home_page.dart';
 import 'package:the_elsewheres/ui/home/pages/profile_page.dart';
 
@@ -28,76 +30,30 @@ class _HomeScreenState extends State<HomeScreen> {
       HomePage(
         userProfile: widget.userProfile,
         isStaff: _isStaff,
-        onAddEvent: _navigateToAddEvent,
       ),
-      ProfilePage(userProfile: widget.userProfile),
+      ProfilePage(userProfile: widget.userProfile, logOutUseCase: getIt<LogOutUseCase>()),
     ];
   }
 
-  void _navigateToAddEvent() {
-    // Navigate to add event page
-    context.go('/add-event', extra: widget.userProfile);
-    // Or you can use a modal bottom sheet:
-    // _showAddEventModal();
-  }
 
-  void _showAddEventModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.9,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 10),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                'Add New Event',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Add Event Form Goes Here',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle),
+            icon: Icon(
+              Icons.account_circle,
+              color: colorScheme.onPrimary,
+            ),
             onPressed: () {
               context.go('/profile', extra: widget.userProfile);
             },
@@ -108,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _selectedIndex,
         children: _pages,
       ),
+      backgroundColor: colorScheme.surface,
       // Floating Bottom Navigation Bar
       floatingActionButton: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -115,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: colorScheme.shadow.withValues(),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -125,13 +82,13 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(30),
           child: Container(
             height: 70,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF667eea),
-                  Color(0xFF764ba2),
+                  colorScheme.primary,
+                  colorScheme.primaryContainer,
                 ],
               ),
             ),
@@ -174,6 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required int index,
   }) {
     final isSelected = _selectedIndex == index;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return GestureDetector(
       onTap: () {
@@ -187,11 +146,14 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.white.withOpacity(0.2)
+              ? colorScheme.onPrimary.withOpacity(0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: isSelected
-              ? Border.all(color: Colors.white.withOpacity(0.3), width: 1)
+              ? Border.all(
+              color: colorScheme.onPrimary.withOpacity(0.3),
+              width: 1
+          )
               : null,
         ),
         child: Row(
@@ -199,15 +161,15 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(
               icon,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
               size: isSelected ? 26 : 24,
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colorScheme.onPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),

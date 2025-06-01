@@ -23,9 +23,9 @@ class OAuthRepositoryImpl implements OAuthRepository {
     return await dataSource.logout();
   }
   @override
-  Future<UserProfile> getUserProfile() async {
-    UserProfileDto profile =  await dataSource.getUserProfile();
-    return profile.toDomain();
+  Future<UserProfile?> getUserProfile() async {
+    UserProfileDto? profile =  await dataSource.getUserProfile();
+    return profile?.toDomain();
   }
 
 }

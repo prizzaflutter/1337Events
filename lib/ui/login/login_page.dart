@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         _showSuccessMessage(state.message.toString());
                         _navigateToHome(state.userProfile);
                       } else if (state is LoginAlreadyAuthenticated) {
-                        _navigateToHome(state.userProfile);
+                        _navigateToHome(state.userProfile!);
                       }
                     },
                     builder: (context, state) {
