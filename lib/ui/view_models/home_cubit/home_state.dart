@@ -1,32 +1,31 @@
-part of 'home_cubit.dart';
 
-@immutable
-sealed class HomeState  extends Equatable {}
+import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 
-final class HomeInitial extends HomeState {
-  @override
-  List<Object?> get props => [];
-}
 
-// listen to upcoming event states
-// listen events for staff
-class  StudentListenUpComingLoadingState extends HomeState {
-  @override
-  List<Object?> get props => [];
-}
+// States
+abstract class HomeState {}
+
+class HomeInitial extends HomeState {}
+
+class StudentListenUpComingLoadingState extends HomeState {}
+
 class StudentListenUpComingSuccessState extends HomeState {
   final List<NewEventModel> events;
-
   StudentListenUpComingSuccessState(this.events);
-
-  @override
-  List<Object?> get props => [events];
 }
+
 class StudentListenUpComingErrorState extends HomeState {
   final String errorMessage;
-
   StudentListenUpComingErrorState(this.errorMessage);
+}
 
-  @override
-  List<Object?> get props => [errorMessage];
+// todo : register/unregister events
+class RegisterEventLoadingState extends HomeState {}
+class RegisterEventSuccessState extends HomeState {
+  final String message;
+  RegisterEventSuccessState(this.message);
+}
+class RegisterEventErrorState extends HomeState {
+  final String errorMessage;
+  RegisterEventErrorState(this.errorMessage);
 }

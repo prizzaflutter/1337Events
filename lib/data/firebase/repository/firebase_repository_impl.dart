@@ -81,5 +81,14 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
      return _firebaseService.listenToUpComingEvents();
   }
 
+  @override
+  Future<void> registerToEvent(String eventId, String userId) async {
+    return await _firebaseService.RegisterToEvent(eventId, userId);
+  }
+
+  @override
+  Future<void> unregisterFromEvent(String eventId, String userId) async{
+    return await _firebaseService.UnRegisterFromEvent(eventId, userId);
+  }
 
 }

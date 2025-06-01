@@ -305,21 +305,29 @@ class FirebaseService {
 // todo : get all Upcoming event and started
   Stream<List<NewEventModelDto>> listenToUpComingEvents() {
     try {
+      final nowStr = DateTime.now().toIso8601String();
+      debugPrint("now is : $nowStr");
+
       return _firestore
           .collection(_eventsCollection)
-          .where('endDate', isGreaterThan: DateTime.now().millisecondsSinceEpoch)
-          .orderBy('startDate') // Optional: order by start date
+          .where('endDate', isGreaterThan: nowStr)
+          .orderBy('endDate')
           .snapshots()
           .map((snapshot) {
+        debugPrint("snapshot size: ${snapshot.docs.length}");
         return snapshot.docs.map((doc) {
-          return NewEventModelDto.fromFirestore(doc);
+          try {
+            return NewEventModelDto.fromFirestore(doc);
+          } catch (e) {
+            print('Error parsing document ${doc.id}: $e');
+            rethrow;
+          }
         }).toList();
       });
     } catch (e) {
-      throw Exception("Failed to listen to upcoming events: $e");
+      return Stream.error(Exception("Failed to listen to upcoming events: $e"));
     }
   }
-
 
   // todo: Storage management functions
   Future<String> uploadEventImageToStorage(
@@ -369,4 +377,18 @@ class FirebaseService {
       throw Exception("Failed to delete event image: $e");
     }
   }
+
+
+  //todo : register and unregister from event Student
+  Future<void> RegisterToEvent(String userid, String eventId) async{
+     await _firestore.collection(_eventsCollection).doc(eventId).update({
+      'registeredUsers': FieldValue.arrayUnion([userid]),
+     });
+  }
+  Future<void> UnRegisterFromEvent(String userId, String eventId)async {
+    await _firestore.collection(_eventsCollection).doc(eventId).update({
+      'registeredUsers': FieldValue.arrayRemove([userId]),
+    });
+  }
+
 }

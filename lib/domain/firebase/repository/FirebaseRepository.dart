@@ -22,4 +22,9 @@ abstract class FirebaseRepository {
   Future<String> uploadImageToStorage(String filePath, String fileName);
   Future<String> getImageUrlFromStorage(String fileName);
   Future<void> deleteImageFromStorage(String fileName);
+
+
+  // todo : register/unregister event
+   Future<void> registerToEvent(String eventId, String userId);
+   Future<void> unregisterFromEvent(String eventId, String userId);
 }

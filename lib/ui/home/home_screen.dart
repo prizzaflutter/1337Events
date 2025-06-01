@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/dependency_injection/dependency_injection.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
-import 'package:the_elsewheres/ui/home/pages/home_page.dart';
+import 'package:the_elsewheres/ui/home/pages/home_page/home_page.dart';
 import 'package:the_elsewheres/ui/home/pages/profile_page.dart';
 
 class HomeScreen extends StatefulWidget {

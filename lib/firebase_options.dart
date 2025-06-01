@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'the-elsewheres.firebasestorage.app',
     iosBundleId: 'com.example.theElsewheres',
   );
+
 }

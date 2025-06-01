@@ -2,7 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:the_elsewheres/data/Oauth/services/o_auth_service.dart';
+import 'package:the_elsewheres/data/authentification/onesignal_notification_services.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/authenticate_usecase.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.dart';
@@ -57,6 +59,7 @@ class LoginCubit extends Cubit<LoginState> {
         debugPrint("Authenticated successfully");
         UserProfile? userProfile = await _getUserProfileUseCase.call();
         if (userProfile != null){
+          await OneSignal.login(userProfile.id.toString());
           await _saveUserProfileToFirestore.call(userProfile);
           emit(LoginSuccess(userProfile: userProfile,  message : "Successfully authenticated with 42!"));
         }else

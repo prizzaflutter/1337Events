@@ -3,10 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/dependency_injection/dependency_injection.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
-import 'package:the_elsewheres/domain/Oauth/usecases/authenticate_usecase.dart';
-import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.dart';
-import 'package:the_elsewheres/domain/Oauth/usecases/is_logged_in_usecase.dart';
-import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
 import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
