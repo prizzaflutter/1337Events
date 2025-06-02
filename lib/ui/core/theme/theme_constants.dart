@@ -18,8 +18,17 @@ import 'package:flutter/material.dart';
 abstract final class AppTheme {
   // The FlexColorScheme defined light mode ThemeData.
   static ThemeData light = FlexThemeData.light(
-    // Using FlexColorScheme built-in FlexScheme enum based colors
-    scheme: FlexScheme.cyanM3,
+    // Playground built-in scheme made with FlexSchemeColor() API.
+    colors: const FlexSchemeColor(
+      primary: Color(0xFF00296B),
+      primaryContainer: Color(0xFFA0C2ED),
+      secondary: Color(0xFFD26900),
+      secondaryContainer: Color(0xFFFFD270),
+      tertiary: Color(0xFF5C5C95),
+      tertiaryContainer: Color(0xFFC8DBF8),
+      appBarColor: Color(0xFFC8DCF8),
+      swapOnMaterial3: true,
+    ),
     // Component theme configurations for light mode.
     subThemesData: const FlexSubThemesData(
       interactionEffects: true,
@@ -37,8 +46,20 @@ abstract final class AppTheme {
 
   // The FlexColorScheme defined dark mode ThemeData.
   static ThemeData dark = FlexThemeData.dark(
-    // Using FlexColorScheme built-in FlexScheme enum based colors.
-    scheme: FlexScheme.cyanM3,
+    // Playground built-in scheme made with FlexSchemeColor() API.
+    colors: const FlexSchemeColor(
+      primary: Color(0xFFB1CFF5),
+      primaryContainer: Color(0xFF3873BA),
+      primaryLightRef: Color(0xFF00296B), // The color of light mode primary
+      secondary: Color(0xFFFFD270),
+      secondaryContainer: Color(0xFFD26900),
+      secondaryLightRef: Color(0xFFD26900), // The color of light mode secondary
+      tertiary: Color(0xFFC9CBFC),
+      tertiaryContainer: Color(0xFF535393),
+      tertiaryLightRef: Color(0xFF5C5C95), // The color of light mode tertiary
+      appBarColor: Color(0xFF00102B),
+      swapOnMaterial3: true,
+    ),
     // Component theme configurations for dark mode.
     subThemesData: const FlexSubThemesData(
       interactionEffects: true,

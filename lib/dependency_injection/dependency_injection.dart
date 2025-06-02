@@ -13,16 +13,22 @@ import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.da
 import 'package:the_elsewheres/domain/Oauth/usecases/is_logged_in_usecase.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/repository/FirebaseRepository.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/check_user_has_access_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/approved_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/delete_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/event_need_feedback_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/listen_to_pending_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/staff_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_to_upcoming_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/update_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/get_userId_from_login_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/is_user_exit_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/register_unregister_usecase/register_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/save_user_profile_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/submet_feedback_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/update_user_club_admin_status_usecase.dart';
 import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
 
 GetIt getIt = GetIt.instance;
@@ -92,6 +98,26 @@ class GetItService {
   ));
 
   getIt.registerSingleton<SubmitFeedBackUseCase>(SubmitFeedBackUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+
+  getIt.registerSingleton<IsUserExitUseCase>(IsUserExitUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+  getIt.registerSingleton<UpdateUserClubAdminStatusUseCase>(UpdateUserClubAdminStatusUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+  getIt.registerSingleton<GetUserIdFromLoginUseCase>(GetUserIdFromLoginUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+  getIt.registerSingleton<CheckUserHasAccessUseCase>(CheckUserHasAccessUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+  getIt.registerSingleton<ListenToPendingEventUseCase>(ListenToPendingEventUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+
+  getIt.registerSingleton<ApprovedEventUseCase>(ApprovedEventUseCase(
     getIt<FirebaseRepository>(),
   ));
   }

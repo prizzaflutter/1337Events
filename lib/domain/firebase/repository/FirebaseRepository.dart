@@ -33,4 +33,12 @@ abstract class FirebaseRepository {
    // todo : get Event that need feed back
   Stream<List<NewEventModel>> getEventThatNeedFeedBackStream(String userId);
  Future<void> submitFeedback({required String eventId, required FeedBackModel feedback});
+ Future<bool> userExistsByLogin(String login);
+ Future<void> updateUserClubAdminStatusById(String userId, bool isClubAdmin);
+ Future<String> getIdFromLogin(String login);
+ Future<bool> checkUserHasAccess (String login);
+
+ // todo : pending events
+  Stream<List<NewEventModel>> getPendingEvents();
+  Future<void> approveEvent(String eventId);
 }

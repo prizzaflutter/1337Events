@@ -74,6 +74,7 @@ dependencies:
   app_links: ^6.4.0
   flutter_inappwebview: ^6.1.5
   flutter_timezone: ^4.1.1
+  qr_flutter: ^4.1.0
 #  timezone: ^0.10.0
 
 flutter_native_splash:
@@ -81,12 +82,12 @@ flutter_native_splash:
   ios: true
 
   # Light Theme Configuration
-  color: "#006876"  # Light green background
+  color: "#ffffff"  # Light green background
   image: 'assets/icons/logo.png'
   branding: null
 
   # Dark Theme Configuration
-  color_dark: "#44D8F1"  # Dark green background
+  color_dark: "#000000"  # Dark green background
   image_dark: 'assets/icons/logo_dark.png'  # Optional: different logo for dark theme
   branding_dark: null
 
@@ -99,12 +100,12 @@ flutter_native_splash:
   android_12:
     # Light theme
     image: 'assets/icons/logo.png'
-    color: "#006876"
+    color: "#ffffff"
     branding: null
 
     # Dark theme
     image_dark: 'assets/icons/logo_dark.png'
-    color_dark: "#44D8F1"
+    color_dark: "#000000"
     branding_dark: null
 
 

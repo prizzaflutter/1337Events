@@ -103,4 +103,37 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
     return await _firebaseService.submitFeedback(eventId: eventId, feedback: feedback);
   }
 
+  @override
+  Future<bool> userExistsByLogin(String login) async{
+    return await _firebaseService.userExistsByLogin(login);
+  }
+
+  @override
+  Future<void> updateUserClubAdminStatusById(String userId, bool isClubAdmin)async{
+    return await _firebaseService.updateUserClubAdminStatusById(userId, isClubAdmin);
+  }
+
+  @override
+  Future<String> getIdFromLogin(String login)async{
+     return await  _firebaseService.getUserIdFromLogin(login);
+  }
+
+  @override
+  Future<bool> checkUserHasAccess(String login) async {
+     return await _firebaseService.checkUserHasAccess(login);
+  }
+
+  @override
+  Future<void> approveEvent(String eventId)async{
+    return await _firebaseService.approveEvent(eventId);
+  }
+
+  @override
+  Stream<List<NewEventModel>> getPendingEvents(){
+    Stream<List<NewEventModelDto>> pendingEventsDto = _firebaseService.listenToPendingEvents();
+    return pendingEventsDto.map((eventList) =>
+        eventList.map((event) => event.toDomain()).toList()
+    );
+  }
+
 }

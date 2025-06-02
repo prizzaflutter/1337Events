@@ -1,105 +1,78 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+/// The [AppTheme] defines light and dark themes for the app.
+///
+/// Theme setup for FlexColorScheme package v8.
+/// Use same major flex_color_scheme package version. If you use a
+/// lower minor version, some properties may not be supported.
+/// In that case, remove them after copying this theme to your
+/// app or upgrade the package to version 8.2.0.
+///
+/// Use it in a [MaterialApp] like this:
+///
+/// MaterialApp(
+///   theme: AppTheme.light,
+///   darkTheme: AppTheme.dark,
+/// );
+abstract final class AppTheme {
+  // The FlexColorScheme defined light mode ThemeData.
+  static ThemeData light = FlexThemeData.light(
+    // Playground built-in scheme made with FlexSchemeColor() API.
+    colors: const FlexSchemeColor(
+      primary: Color(0xFF00296B),
+      primaryContainer: Color(0xFFA0C2ED),
+      secondary: Color(0xFFD26900),
+      secondaryContainer: Color(0xFFFFD270),
+      tertiary: Color(0xFF5C5C95),
+      tertiaryContainer: Color(0xFFC8DBF8),
+      appBarColor: Color(0xFFC8DCF8),
+      swapOnMaterial3: true,
+    ),
+    // Component theme configurations for light mode.
+    subThemesData: const FlexSubThemesData(
+      interactionEffects: true,
+      tintedDisabledControls: true,
+      inputDecoratorIsFilled: true,
+      inputDecoratorBorderType: FlexInputBorderType.outline,
+      alignedDropdown: true,
+      navigationRailUseIndicator: true,
+    ),
+    // Direct ThemeData properties.
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    useMaterial3: false,
+  );
 
-/// Light [ColorScheme] made with FlexColorScheme v8.2.0.
-/// Requires Flutter 3.22.0 or later.
-const ColorScheme lightColorScheme = ColorScheme(
-  brightness: Brightness.light,
-  primary: Color(0xFF006876),
-  onPrimary: Color(0xFFFFFFFF),
-  primaryContainer: Color(0xFFA1EFFF),
-  onPrimaryContainer: Color(0xFF000000),
-  primaryFixed: Color(0xFFBFE5EB),
-  primaryFixedDim: Color(0xFF8CCED7),
-  onPrimaryFixed: Color(0xFF000D0F),
-  onPrimaryFixedVariant: Color(0xFF001D21),
-  secondary: Color(0xFF476365),
-  onSecondary: Color(0xFFFFFFFF),
-  secondaryContainer: Color(0xFFCAE8EA),
-  onSecondaryContainer: Color(0xFF000000),
-  secondaryFixed: Color(0xFFD6DFDF),
-  secondaryFixedDim: Color(0xFFB2C0C2),
-  onSecondaryFixed: Color(0xFF161E1F),
-  onSecondaryFixedVariant: Color(0xFF1D2929),
-  tertiary: Color(0xFF585C82),
-  onTertiary: Color(0xFFFFFFFF),
-  tertiaryContainer: Color(0xFFDFE0FF),
-  onTertiaryContainer: Color(0xFF000000),
-  tertiaryFixed: Color(0xFFD9DAE6),
-  tertiaryFixedDim: Color(0xFFB7B8CB),
-  onTertiaryFixed: Color(0xFF222432),
-  onTertiaryFixedVariant: Color(0xFF292B3D),
-  error: Color(0xFFBA1A1A),
-  onError: Color(0xFFFFFFFF),
-  errorContainer: Color(0xFFFFDAD6),
-  onErrorContainer: Color(0xFF000000),
-  surface: Color(0xFFFFFFFF),
-  onSurface: Color(0xFF000000),
-  surfaceDim: Color(0xFFE0E0E0),
-  surfaceBright: Color(0xFFFDFDFD),
-  surfaceContainerLowest: Color(0xFFFFFFFF),
-  surfaceContainerLow: Color(0xFFF8F8F8),
-  surfaceContainer: Color(0xFFF3F3F3),
-  surfaceContainerHigh: Color(0xFFEDEDED),
-  surfaceContainerHighest: Color(0xFFE7E7E7),
-  onSurfaceVariant: Color(0xFF000000),
-  outline: Color(0xFF919191),
-  outlineVariant: Color(0xFFD1D1D1),
-  shadow: Color(0xFF000000),
-  scrim: Color(0xFF000000),
-  inverseSurface: Color(0xFF121212),
-  onInverseSurface: Color(0xFFFFFFFF),
-  inversePrimary: Color(0xFF90DBE5),
-  surfaceTint: Color(0xFF006876),
-);
-
-/// Dark [ColorScheme] made with FlexColorScheme v8.2.0.
-/// Requires Flutter 3.22.0 or later.
-const ColorScheme darkColorScheme = ColorScheme(
-  brightness: Brightness.dark,
-  primary: Color(0xFF44D8F1),
-  onPrimary: Color(0xFF000000),
-  primaryContainer: Color(0xFF004E59),
-  onPrimaryContainer: Color(0xFFFFFFFF),
-  primaryFixed: Color(0xFFBFE5EB),
-  primaryFixedDim: Color(0xFF8CCED7),
-  onPrimaryFixed: Color(0xFF000D0F),
-  onPrimaryFixedVariant: Color(0xFF001D21),
-  secondary: Color(0xFFAECCCE),
-  onSecondary: Color(0xFF000000),
-  secondaryContainer: Color(0xFF304B4D),
-  onSecondaryContainer: Color(0xFFFFFFFF),
-  secondaryFixed: Color(0xFFD6DFDF),
-  secondaryFixedDim: Color(0xFFB2C0C2),
-  onSecondaryFixed: Color(0xFF161E1F),
-  onSecondaryFixedVariant: Color(0xFF1D2929),
-  tertiary: Color(0xFFC0C3EF),
-  onTertiary: Color(0xFF000000),
-  tertiaryContainer: Color(0xFF404468),
-  onTertiaryContainer: Color(0xFFFFFFFF),
-  tertiaryFixed: Color(0xFFD9DAE6),
-  tertiaryFixedDim: Color(0xFFB7B8CB),
-  onTertiaryFixed: Color(0xFF222432),
-  onTertiaryFixedVariant: Color(0xFF292B3D),
-  error: Color(0xFFFFB4AB),
-  onError: Color(0xFF000000),
-  errorContainer: Color(0xFF93000A),
-  onErrorContainer: Color(0xFFFFFFFF),
-  surface: Color(0xFF121212),
-  onSurface: Color(0xFFFFFFFF),
-  surfaceDim: Color(0xFF060606),
-  surfaceBright: Color(0xFF2C2C2C),
-  surfaceContainerLowest: Color(0xFF010101),
-  surfaceContainerLow: Color(0xFF0E0E0E),
-  surfaceContainer: Color(0xFF151515),
-  surfaceContainerHigh: Color(0xFF1D1D1D),
-  surfaceContainerHighest: Color(0xFF282828),
-  onSurfaceVariant: Color(0xFFFFFFFF),
-  outline: Color(0xFF777777),
-  outlineVariant: Color(0xFF414141),
-  shadow: Color(0xFF000000),
-  scrim: Color(0xFF000000),
-  inverseSurface: Color(0xFFFFFFFF),
-  onInverseSurface: Color(0xFF121212),
-  inversePrimary: Color(0xFF2B6670),
-  surfaceTint: Color(0xFF44D8F1),
-);
+  // The FlexColorScheme defined dark mode ThemeData.
+  static ThemeData dark = FlexThemeData.dark(
+    // Playground built-in scheme made with FlexSchemeColor() API.
+    colors: const FlexSchemeColor(
+      primary: Color(0xFFB1CFF5),
+      primaryContainer: Color(0xFF3873BA),
+      primaryLightRef: Color(0xFF00296B), // The color of light mode primary
+      secondary: Color(0xFFFFD270),
+      secondaryContainer: Color(0xFFD26900),
+      secondaryLightRef: Color(0xFFD26900), // The color of light mode secondary
+      tertiary: Color(0xFFC9CBFC),
+      tertiaryContainer: Color(0xFF535393),
+      tertiaryLightRef: Color(0xFF5C5C95), // The color of light mode tertiary
+      appBarColor: Color(0xFF00102B),
+      swapOnMaterial3: true,
+    ),
+    // Component theme configurations for dark mode.
+    subThemesData: const FlexSubThemesData(
+      interactionEffects: true,
+      tintedDisabledControls: true,
+      blendOnColors: true,
+      inputDecoratorIsFilled: true,
+      inputDecoratorBorderType: FlexInputBorderType.outline,
+      alignedDropdown: true,
+      navigationRailUseIndicator: true,
+    ),
+    // Direct ThemeData properties.
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    useMaterial3: false,
+  );
+}

@@ -261,6 +261,7 @@ class FirebaseService {
 
       return _firestore
           .collection(_eventsCollection)
+          .where('status', isEqualTo: 'active')
           .where('endDate', isGreaterThan: nowStr)
           .orderBy('endDate')
           .snapshots()
@@ -396,6 +397,7 @@ class FirebaseService {
     try {
       return _firestore
           .collection(_eventsCollection)
+          .where('status', isEqualTo:  'active')
           .where('registeredUsers', arrayContains: userId)
           .where('endDate', isLessThan: DateTime.now().toIso8601String()) // Only get events that are done (past endDate)
           .snapshots()
@@ -446,6 +448,105 @@ class FirebaseService {
 
     } catch (e) {
       throw Exception("Failed to add feedback: $e");
+    }
+  }
+
+  // check if user exist by login
+  Future<bool> userExistsByLogin(String login) async {
+
+    try {
+
+      final snapshot = await _firestore
+          .collection(collection) // Assuming you have a users collection constant
+          .where('login', isEqualTo: login) // or 'username' depending on your field name
+          .limit(1)
+          .get();
+      return snapshot.docs.isNotEmpty;
+
+    } catch (e) {
+
+      throw Exception("Failed to check if user exists: $e");
+
+    }
+
+  }
+
+  Future<void> updateUserClubAdminStatusById(String userId, bool isClubAdmin) async {
+    try {
+      await _firestore.collection(collection).doc(userId).update({
+        'is_club_admin': isClubAdmin,
+        'updated_at': Timestamp.now(),
+      });
+    } catch (e) {
+      throw Exception("Failed to update user club admin status: $e");
+
+    }
+
+  }
+
+  Future<String> getUserIdFromLogin(String login) async {
+    try {
+      final snapshot = await _firestore
+          .collection(collection)
+          .where('login', isEqualTo: login)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.id; // Return the document ID as userId
+      } else {
+        throw Exception("User not found with login: $login");
+      }
+    } catch (e) {
+      throw Exception("Failed to get user ID from login: $e");
+    }
+  }
+
+  Future<bool> checkUserHasAccess (String login) async {
+    try {
+      final snapshot = await _firestore
+          .collection(collection)
+          .where('login', isEqualTo: login)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final userData = snapshot.docs.first.data();
+        return userData['is_club_admin'] ?? false; // Assuming 'hasAccess' is a field in your user profile
+      } else {
+        return false; // User not found, no access
+      }
+    } catch (e) {
+      throw Exception("Failed to check user access: $e");
+    }
+  }
+
+
+  // todo : get all pending events
+  Stream<List<NewEventModelDto>> listenToPendingEvents() {
+    try {
+      return _firestore
+          .collection(_eventsCollection)
+          .where('status', isEqualTo: 'pending')
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          return NewEventModelDto.fromFirestore(doc);
+        }).toList();
+      });
+    } catch (e) {
+      throw Exception("Failed to listen to pending events: $e");
+    }
+  }
+  Future<void> approveEvent(String eventId) async {
+    try {
+      await _firestore.collection(_eventsCollection).doc(eventId).update({
+        'status': 'active',
+        'updated_at': Timestamp.now(),
+      });
+      debugPrint("Event approved with ID: $eventId");
+    } catch (e) {
+      throw Exception("Failed to approve event: $e");
     }
   }
 

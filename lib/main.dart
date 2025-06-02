@@ -8,11 +8,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:the_elsewheres/data/authentification/onesignal_notification_services.dart';
 import 'package:the_elsewheres/dependency_injection/dependency_injection.dart';
-import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.dart';
-import 'package:the_elsewheres/domain/Oauth/usecases/is_logged_in_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/delete_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/event_need_feedback_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/listen_to_pending_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/staff_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_to_upcoming_event_usecase.dart';
@@ -20,9 +19,11 @@ import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/update_e
 import 'package:the_elsewheres/domain/firebase/usercases/register_unregister_usecase/register_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/submet_feedback_usecase.dart';
 import 'package:the_elsewheres/main_page.dart';
+import 'package:the_elsewheres/networking/network_cubit.dart';
 import 'package:the_elsewheres/ui/core/theme/theme_cubit/theme_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/event_cubit/event_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/event_cubit/upcoming_event_cubit/upcoming_cubit.dart';
+import 'package:the_elsewheres/ui/view_models/home_cubit/append_cubit/append_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/home_cubit/feedback_cubit/feedback_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit/home_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
@@ -73,6 +74,8 @@ void main() async {
           getIt<EventNeedFeedbackUseCase>(),
       )),
       BlocProvider(create: (context)=> UpcomingCubit(getIt<StudentListenToUpComingEventUseCase>())),
+      BlocProvider(create: (context)=>AppendCubit(getIt<ListenToPendingEventUseCase>())..listenToAppendEvent()),
+      BlocProvider(create: (context)=>NetworkCubit()),
     ],
     child: EasyLocalization(
       supportedLocales: [Locale('en'), Locale('ar')],

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
@@ -116,6 +117,21 @@ class HomeCubit extends Cubit<HomeState> {
 
       emit(RegisterEventErrorState(errorMessage));
     }
+  }
+
+  // i want to make stream to get just is Club from the user_profiles
+  Stream<bool> isClubMember(String userId) {
+    return FirebaseFirestore.instance
+        .collection('user_profiles')
+        .doc(userId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        final data = snapshot.data()!;
+        return data['is_club_admin'] ?? false; // Default to false if not found
+      }
+      return false; // Default to false if document does not exist
+    });
   }
 
 }

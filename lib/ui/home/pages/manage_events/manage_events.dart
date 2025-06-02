@@ -4,10 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
+import 'package:the_elsewheres/ui/go_router/router.dart';
 import 'package:the_elsewheres/ui/home/pages/home_page/home_page_wdigets/show_feedback_dialog_widget.dart';
 import 'package:the_elsewheres/ui/home/pages/manage_events/Edit_event.dart';
+import 'package:the_elsewheres/ui/home/pages/manage_events/manage_event_widget/qr_code_dialog.dart';
 import 'package:the_elsewheres/ui/view_models/event_cubit/event_cubit.dart';
 
 class ManageEvents extends StatefulWidget {
@@ -631,6 +634,11 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                     label: const Text('Edit'),
                   ),
                   TextButton.icon(
+                    onPressed: () => showQRCodeDialog(context, event, colorScheme),
+                    icon: const Icon(Icons.qr_code, size: 16),
+                    label: const Text('QR'),
+                  ),
+                  TextButton.icon(
                     onPressed: () => _deleteEvent(event),
                     icon: const Icon(Icons.delete, size: 16),
                     label: const Text('Delete'),
@@ -646,6 +654,7 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
       ),
     );
   }
+
 
   Widget _buildStatusChip(ColorScheme colorScheme, bool isUpcoming, bool isPast, bool isActive) {
     String status;

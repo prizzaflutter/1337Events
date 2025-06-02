@@ -4,6 +4,9 @@ import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 
 class NewEventModelDto {
   final List<FeedBackModel> feedbacks;
+  final List<String> visits;
+  final String status;
+  final String speaker;
   final int id;
   final List<String> registeredUsers;
   final String eventImage;
@@ -16,6 +19,9 @@ class NewEventModelDto {
   final double rate;
 
   NewEventModelDto({
+    required this.visits,
+    required this.status,
+    required this.speaker,
     required this.feedbacks,
     required this.registeredUsers,
     required this.id,
@@ -36,6 +42,9 @@ class NewEventModelDto {
     }
 
     return NewEventModelDto(
+      visits: List<String>.from(data['visits'] ?? []),
+      status: data['status'] as String? ?? '',
+      speaker: data['speaker'] as String? ?? '',
       feedbacks: (data['feedbacks'] as List<dynamic>?)
           ?.map((feedback) => FeedBackModel.fromJson(feedback as Map<String, dynamic>))
           .toList() ?? [],
@@ -77,6 +86,9 @@ class NewEventModelDto {
 
   Map<String, dynamic> toJson() {
     return {
+      'visits': visits,
+      'status': status,
+      'speaker': speaker,
       'registeredUsers': registeredUsers,
       'id': id,
       'eventImage': eventImage,
@@ -92,6 +104,9 @@ class NewEventModelDto {
 
   NewEventModel toDomain() {
     return NewEventModel(
+      visits: visits,
+      status: status,
+      speaker: speaker,
       feedbacks: feedbacks,
       registeredUsers: registeredUsers,
       id: id,
@@ -107,6 +122,9 @@ class NewEventModelDto {
   }
 
   NewEventModelDto copyWith({
+    List<String> visits = const [],
+    String? status,
+    String? speaker,
     int? id,
     String? eventImage,
     String? tag,
@@ -118,6 +136,9 @@ class NewEventModelDto {
     double? rate,
   }) {
     return NewEventModelDto(
+      visits: visits,
+      status: status ?? this.status,
+      speaker: speaker ?? this.speaker,
       feedbacks: feedbacks,
       registeredUsers: List<String>.from(registeredUsers),
       id: id ?? this.id,

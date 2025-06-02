@@ -8,17 +8,18 @@ import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_
 import 'package:the_elsewheres/ui/home/pages/new_event_page/widgets_for_new_event/event_preview_widget.dart';
 import 'package:the_elsewheres/ui/home/pages/new_event_page/widgets_for_new_event/event_section_title_widget.dart';
 
-class AddEventPage extends StatefulWidget {
+class AddEventPageFroAdmin extends StatefulWidget {
   final UserProfile userProfile;
+  final bool isClubAdmin ;
   final AddNewEventUseCase addNewEventUseCase;
 
-  const AddEventPage({super.key,  required this.userProfile, required this.addNewEventUseCase,});
+  const AddEventPageFroAdmin({super.key,  required this.userProfile, required this.addNewEventUseCase,required this.isClubAdmin});
 
   @override
-  State<AddEventPage> createState() => _AddEventPageState();
+  State<AddEventPageFroAdmin> createState() => _AddEventPageState();
 }
 
-class _AddEventPageState extends State<AddEventPage> with TickerProviderStateMixin {
+class _AddEventPageState extends State<AddEventPageFroAdmin> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -611,33 +612,30 @@ class _AddEventPageState extends State<AddEventPage> with TickerProviderStateMix
         return;
       }
       // Create NewEventModel with the form data
-      final newEvent = _createEventModel();
-      await widget.addNewEventUseCase.call(newEvent, filePath: _selectedImage!.path);
+      NewEventModel model = NewEventModel(
+        visits: [],
+        status: widget.isClubAdmin ? 'pending' : 'active', // Set status based on isClubAdmin
+        speaker: widget.userProfile.firstName,
+        feedbacks: [],
+        registeredUsers: [],
+        id: DateTime.now().millisecondsSinceEpoch,
+        tag: _selectedTag,
+        eventName: _eventNameController.text,
+        eventDescription: _eventDescriptionController.text,
+        startDate: _startDate,
+        endDate: _endDate,
+        eventImage: _selectedImage!.path.toString(),
+        location: LocationEventModel(
+          campus: _campusController.text,
+          place: _placeController.text,
+        ),
+        rate: 0.0,
+      );
+      await widget.addNewEventUseCase.call(model, filePath: _selectedImage!.path);
       // todo : save to firestore
       // Show success dialog
-      _showSuccessDialog(newEvent);
+      _showSuccessDialog(model);
     }
-  }
-
-  NewEventModel _createEventModel() {
-    return NewEventModel(
-      visits: [],
-      status: 'active',
-      speaker: widget.userProfile.firstName,
-      feedbacks: [],
-      registeredUsers: [],
-      id: DateTime.now().millisecondsSinceEpoch,
-      tag: _selectedTag,
-      eventName: _eventNameController.text,
-      eventDescription: _eventDescriptionController.text,
-      startDate: _startDate,
-      endDate: _endDate,
-      eventImage: _selectedImage!.path.toString(), // Add image path
-      location: LocationEventModel(
-        campus: _campusController.text,
-        place: _placeController.text,
-      ), rate: 0.0,
-    );
   }
 
   void _showSuccessDialog(NewEventModel event) {
