@@ -7,18 +7,6 @@ abstract class HomeState {}
 
 class HomeInitial extends HomeState {}
 
-class StudentListenUpComingLoadingState extends HomeState {}
-
-class StudentListenUpComingSuccessState extends HomeState {
-  final List<NewEventModel> events;
-  StudentListenUpComingSuccessState(this.events);
-}
-
-class StudentListenUpComingErrorState extends HomeState {
-  final String errorMessage;
-  StudentListenUpComingErrorState(this.errorMessage);
-}
-
 // todo : register/unregister events
 class RegisterEventLoadingState extends HomeState {}
 class RegisterEventSuccessState extends HomeState {
@@ -28,4 +16,15 @@ class RegisterEventSuccessState extends HomeState {
 class RegisterEventErrorState extends HomeState {
   final String errorMessage;
   RegisterEventErrorState(this.errorMessage);
+}
+
+// todo : submit feedback
+class SubmitFeedbackLoadingState extends HomeState {}
+class SubmitFeedbackSuccessState extends HomeState {
+  final String message;
+  SubmitFeedbackSuccessState(this.message);
+}
+class SubmitFeedbackErrorState extends HomeState {
+  final String errorMessage;
+  SubmitFeedbackErrorState(this.errorMessage);
 }

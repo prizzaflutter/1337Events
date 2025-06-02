@@ -12,16 +12,19 @@ import 'package:the_elsewheres/domain/Oauth/usecases/get_user_profile_usecase.da
 import 'package:the_elsewheres/domain/Oauth/usecases/is_logged_in_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/delete_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/event_need_feedback_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/staff_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_to_upcoming_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/update_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/register_unregister_usecase/register_usecase.dart';
-import 'package:the_elsewheres/domain/firebase/usercases/save_user_profile_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/submet_feedback_usecase.dart';
 import 'package:the_elsewheres/main_page.dart';
 import 'package:the_elsewheres/ui/core/theme/theme_cubit/theme_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/event_cubit/event_cubit.dart';
-import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit.dart';
+import 'package:the_elsewheres/ui/view_models/event_cubit/upcoming_event_cubit/upcoming_cubit.dart';
+import 'package:the_elsewheres/ui/view_models/home_cubit/feedback_cubit/feedback_cubit.dart';
+import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit/home_cubit.dart';
 import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -65,7 +68,11 @@ void main() async {
           getIt<StaffListenEventUseCase>(),
           getIt<StudentListenEventUseCase>(),
       )),
-      BlocProvider(create: (context)=>HomeCubit(getIt<StudentListenToUpComingEventUseCase>(), getIt<RegisterUseCase>()))
+      BlocProvider(create: (context)=>HomeCubit(getIt<RegisterUseCase>(), getIt<SubmitFeedBackUseCase>())),
+      BlocProvider(create: (context)=>FeedbackCubit(
+          getIt<EventNeedFeedbackUseCase>(),
+      )),
+      BlocProvider(create: (context)=> UpcomingCubit(getIt<StudentListenToUpComingEventUseCase>())),
     ],
     child: EasyLocalization(
       supportedLocales: [Locale('en'), Locale('ar')],

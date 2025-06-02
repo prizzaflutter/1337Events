@@ -1,3 +1,4 @@
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 import 'package:the_elsewheres/domain/firebase/repository/FirebaseRepository.dart';
 

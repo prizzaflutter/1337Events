@@ -2,6 +2,7 @@ import 'package:the_elsewheres/data/Oauth/models/user_profile_model_dto.dart';
 import 'package:the_elsewheres/data/firebase/model/new_event_model_dto.dart';
 import 'package:the_elsewheres/data/firebase/service/firebase_service.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 import 'package:the_elsewheres/domain/firebase/repository/FirebaseRepository.dart';
 
@@ -30,11 +31,9 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
   }
 
   @override
-  Future<void> updateEvent(String eventId, NewEventModelDto updateEvent, bool updateImage) async {
-    return await _firebaseService.updateEventInFirestore(eventId, updateEvent, updateImage);
+  Future<void> updateEvent(String eventId, NewEventModelDto updateEvent) async {
+    return await _firebaseService.updateEventInFirestore(eventId, updateEvent);
   }
-  
-  
   
 
   @override
@@ -89,6 +88,19 @@ class FirebaseRepositoryImpl implements  FirebaseRepository {
   @override
   Future<void> unregisterFromEvent(String eventId, String userId) async{
     return await _firebaseService.UnRegisterFromEvent(eventId, userId);
+  }
+
+  @override
+  Stream<List<NewEventModel>> getEventThatNeedFeedBackStream(String userId) {
+    Stream<List<NewEventModelDto>> needFeedBackEvent  =  _firebaseService.getEventThatNeedFeedBackStream(userId);
+    return needFeedBackEvent.map((eventDto) {
+      return eventDto.map((dto) => dto.toDomain()).toList();
+    });
+  }
+
+  @override
+  Future<void> submitFeedback({required String eventId, required FeedBackModel feedback})async{
+    return await _firebaseService.submitFeedback(eventId: eventId, feedback: feedback);
   }
 
 }

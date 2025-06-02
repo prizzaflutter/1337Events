@@ -35,4 +35,10 @@ class ThemeCubit extends Cubit<ThemeMode> {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('themeMode', state.toString().split('.').last);
   }
+
+  Future<bool> isDarkMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedTheme = prefs.getString('themeMode') ?? 'system';
+    return savedTheme == 'dark' || (savedTheme == 'system' && WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
+  }
 }

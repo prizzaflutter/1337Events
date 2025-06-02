@@ -621,6 +621,7 @@ class _AddEventPageState extends State<AddEventPage> with TickerProviderStateMix
 
   NewEventModel _createEventModel() {
     return NewEventModel(
+      feedbacks: [],
       registeredUsers: [],
       id: DateTime.now().millisecondsSinceEpoch,
       tag: _selectedTag,

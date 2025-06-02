@@ -1,57 +1,52 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 import 'dart:async';
-
-import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
-import 'package:the_elsewheres/domain/firebase/repository/FirebaseRepository.dart';
-import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_to_upcoming_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/register_unregister_usecase/register_usecase.dart';
-import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit.dart';
-import 'package:the_elsewheres/ui/view_models/home_cubit/home_state.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/submet_feedback_usecase.dart';
+import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit/home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  final StudentListenToUpComingEventUseCase upComingEventUseCase;
+  final SubmitFeedBackUseCase submitFeedBackUseCase;
   final RegisterUseCase registerUseCase;
-  StreamSubscription? _eventsSubscription;
 
-  HomeCubit(this.upComingEventUseCase, this.registerUseCase) : super(HomeInitial());
+  HomeCubit( this.registerUseCase, this.submitFeedBackUseCase)
+      : super(HomeInitial());
 
-  void listenToUpComingEvents() {
-    emit(StudentListenUpComingLoadingState());
 
-    _eventsSubscription?.cancel();
+  Future<void> submitFeedback(String eventId,
+      FeedBackModel feedback,) async {
+    emit(SubmitFeedbackLoadingState());
 
-    _eventsSubscription = upComingEventUseCase.call()
-        .listen(
-          (events) {
-        emit(StudentListenUpComingSuccessState(events));
-      },
-      onError: (error) {
-        String errorMessage;
+    try {
+      await submitFeedBackUseCase.call(eventId: eventId, feedback: feedback);
+      emit(SubmitFeedbackSuccessState('Feedback submitted successfully.'));
+    } catch (error) {
+      String errorMessage;
 
-        if (error is FirebaseException) {
-          switch (error.code) {
-            case 'failed-precondition':
-              errorMessage = 'Database index required. Please contact support.';
-              break;
-            case 'permission-denied':
-              errorMessage = 'Permission denied. Please check your access rights.';
-              break;
-            case 'unavailable':
-              errorMessage = 'Service temporarily unavailable. Please try again.';
-              break;
-            default:
-              errorMessage = 'Database error: ${error.message ?? error.code}';
-          }
-        } else if (error is Exception) {
-          errorMessage = error.toString().replaceFirst('Exception: ', '');
-        } else {
-          errorMessage = 'An unexpected error occurred: $error';
+      if (error is FirebaseException) {
+        switch (error.code) {
+          case 'failed-precondition':
+            errorMessage = 'Database index required. Please contact support.';
+            break;
+          case 'permission-denied':
+            errorMessage =
+            'Permission denied. Please check your access rights.';
+            break;
+          case 'unavailable':
+            errorMessage = 'Service temporarily unavailable. Please try again.';
+            break;
+          default:
+            errorMessage = 'Database error: ${error.message ?? error.code}';
         }
+      } else if (error is Exception) {
+        errorMessage = error.toString().replaceFirst('Exception: ', '');
+      } else {
+        errorMessage = 'An unexpected error occurred: $error';
+      }
 
-        emit(StudentListenUpComingErrorState(errorMessage));
-      },
-    );
+      emit(SubmitFeedbackErrorState(errorMessage));
+    }
   }
 
   Future<void> registerToEvent(String userId, String eventId) async {
@@ -69,7 +64,8 @@ class HomeCubit extends Cubit<HomeState> {
             errorMessage = 'Database index required. Please contact support.';
             break;
           case 'permission-denied':
-            errorMessage = 'Permission denied. Please check your access rights.';
+            errorMessage =
+            'Permission denied. Please check your access rights.';
             break;
           case 'unavailable':
             errorMessage = 'Service temporarily unavailable. Please try again.';
@@ -92,7 +88,8 @@ class HomeCubit extends Cubit<HomeState> {
 
     try {
       await registerUseCase.unregister(userId, eventId);
-      emit(RegisterEventSuccessState('Successfully unregistered from the event.'));
+      emit(RegisterEventSuccessState(
+          'Successfully unregistered from the event.'));
     } catch (error) {
       String errorMessage;
 
@@ -102,7 +99,8 @@ class HomeCubit extends Cubit<HomeState> {
             errorMessage = 'Database index required. Please contact support.';
             break;
           case 'permission-denied':
-            errorMessage = 'Permission denied. Please check your access rights.';
+            errorMessage =
+            'Permission denied. Please check your access rights.';
             break;
           case 'unavailable':
             errorMessage = 'Service temporarily unavailable. Please try again.';
@@ -120,9 +118,4 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  @override
-  Future<void> close() {
-    _eventsSubscription?.cancel();
-    return super.close();
-  }
 }

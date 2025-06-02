@@ -7,6 +7,7 @@ import 'package:the_elsewheres/data/Oauth/models/user_profile_model_dto.dart';
 import 'package:the_elsewheres/data/firebase/model/new_event_model_dto.dart';
 import 'package:the_elsewheres/data/local/service/local_service.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore;
@@ -178,59 +179,9 @@ class FirebaseService {
   Future<void> updateEventInFirestore(
       String eventId,
       NewEventModelDto updatedEvent,
-      bool updateImage, // Single boolean parameter
       ) async {
     try {
       NewEventModelDto finalEvent = updatedEvent;
-      String? existingImage;
-
-      // Get existing event data
-      final existingEvent = await _firestore
-          .collection(_eventsCollection)
-          .doc(eventId)
-          .get();
-
-      if (existingEvent.exists) {
-        final existingData = existingEvent.data() as Map<String, dynamic>;
-        existingImage = existingData['event_image'] as String?;
-      }
-
-      if (updateImage) {
-        // Update image: upload new one and delete old one
-        if (updatedEvent.eventImage.isNotEmpty) {
-          // Delete the old image if it exists
-          if (existingImage != null && existingImage.isNotEmpty) {
-            try {
-              await deleteImageFromStorage(existingImage);
-              debugPrint("Old image deleted: $existingImage");
-            } catch (deleteError) {
-              debugPrint("Failed to delete old image: $deleteError");
-              // Continue with update even if old image deletion fails
-            }
-          }
-
-          // Upload the new image
-          final String fileName = "${updatedEvent.id}_${DateTime.now().millisecondsSinceEpoch}.jpg";
-          final String downloadUrl = await uploadEventImageToStorage(
-            updatedEvent.eventImage, // This should be the file path
-            fileName,
-          );
-
-          if (downloadUrl.isNotEmpty) {
-            // Update event with new image filename
-            finalEvent = updatedEvent.copyWith(eventImage: fileName);
-            debugPrint("New image uploaded: $fileName");
-          } else {
-            throw Exception("Failed to upload new image, download URL is empty.");
-          }
-        } else {
-          throw Exception("Cannot update image: new image path is empty");
-        }
-      } else {
-        // Keep existing image: don't update image
-        finalEvent = updatedEvent.copyWith(eventImage: existingImage ?? '');
-        debugPrint("Keeping existing image: $existingImage");
-      }
 
       // Update Firestore with final event data
       await _firestore
@@ -389,6 +340,113 @@ class FirebaseService {
     await _firestore.collection(_eventsCollection).doc(eventId).update({
       'registeredUsers': FieldValue.arrayRemove([userId]),
     });
+  }
+
+  Future<void> updateEventRating(String eventId) async {
+    try {
+      final eventRef = _firestore.collection(_eventsCollection).doc(eventId);
+
+      await _firestore.runTransaction((transaction) async {
+        final eventDoc = await transaction.get(eventRef);
+
+        if (!eventDoc.exists) {
+          throw Exception("Event not found");
+        }
+
+        final data = eventDoc.data() as Map<String, dynamic>;
+        final feedbacks = data['feedbacks'] as List<dynamic>? ?? [];
+
+        if (feedbacks.isEmpty) {
+          // No feedbacks, set rate to 0 or remove it
+          transaction.update(eventRef, {'rating': 0.0});
+          return;
+        }
+
+        // Calculate average rating from all feedbacks
+        double totalRating = 0.0;
+        int validRatings = 0;
+
+        for (final feedback in feedbacks) {
+          if (feedback is Map<String, dynamic>) {
+            final rate = feedback['rating'];
+            if (rate != null) {
+              // Handle both int and double ratings
+              if (rate is num) {
+                totalRating += rate.toDouble();
+                validRatings++;
+              }
+            }
+          }
+        }
+
+        // Calculate average and update event
+        final averageRating = validRatings > 0 ? totalRating / validRatings : 0.0;
+
+        transaction.update(eventRef, {
+          'rate': double.parse(averageRating.toStringAsFixed(2)) // Round to 2 decimal places
+        });
+      });
+    } catch (e) {
+      throw Exception("Failed to update event rating: $e");
+    }
+  }
+
+  // todo: event need feedback: the event that this user has bees subscribed to and those events ended
+  Stream<List<NewEventModelDto>> getEventThatNeedFeedBackStream(String userId) {
+    try {
+      return _firestore
+          .collection(_eventsCollection)
+          .where('registeredUsers', arrayContains: userId)
+          .where('endDate', isLessThan: DateTime.now().toIso8601String()) // Only get events that are done (past endDate)
+          .snapshots()
+          .map((snapshot) {
+        // Filter out events where user has already provided feedback
+        final filteredEvents = snapshot.docs.where((doc) {
+          final data = doc.data();
+          final feedbacks = data['feedbacks'] as List<dynamic>? ?? [];
+          if (feedbacks.isEmpty) {
+            return true; // No feedbacks means user hasn't provided feedback
+          }
+          debugPrint("Feedbacks for event ${doc.id}: $feedbacks");
+
+          // Check if user has already provided feedback
+          final userHasFeedback = feedbacks.any((feedback) {
+            if (feedback is Map<String, dynamic>) {
+              return feedback['userId'] == userId;
+            }
+            debugPrint("Invalid feedback format for event ${doc.id}: $feedback");
+            return false;
+          });
+
+          return !userHasFeedback; // Only include events where user hasn't provided feedback
+        }).toList();
+
+        return filteredEvents.map((doc) {
+          return NewEventModelDto.fromFirestore(doc);
+        }).toList();
+      }).handleError((error) {
+        debugPrint("Error getting subscribed events stream: $error");
+        throw Exception("Failed to get subscribed events stream: $error");
+      });
+    } catch (e) {
+      throw Exception("Failed to initialize events stream: $e");
+    }
+  }
+
+  Future<void> submitFeedback({required String eventId, required FeedBackModel feedback}) async {
+    try {
+      final eventRef = _firestore.collection(_eventsCollection).doc(eventId);
+
+      await eventRef.update({
+        'feedbacks': FieldValue.arrayUnion([feedback.toJson()])
+      });
+
+      // Update the event rating after adding feedback
+      await updateEventRating(eventId);
+
+    } catch (e) {
+      throw Exception("Failed to add feedback: $e");
+    }
   }
 
 }

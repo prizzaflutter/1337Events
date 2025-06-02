@@ -17,8 +17,11 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: colorScheme.surfaceContainerLow,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar with gradient
@@ -28,13 +31,13 @@ class _ProfilePageState extends State<ProfilePage> {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF6a11cb),
-                      Color(0xFF2575fc),
+                      colorScheme.primary,
+                      colorScheme.secondary,
                     ],
                   ),
                 ),
@@ -49,10 +52,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
+                            border: Border.all(color: colorScheme.onPrimary, width: 4),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: colorScheme.shadow.withOpacity(0.3),
                                 blurRadius: 15,
                                 offset: const Offset(0, 8),
                               ),
@@ -64,23 +67,23 @@ class _ProfilePageState extends State<ProfilePage> {
                                 widget.userProfile?.image.versions.medium ??
                                     'https://via.placeholder.com/200'
                             ),
-                            backgroundColor: Colors.grey[300],
+                            backgroundColor: colorScheme.surfaceContainer,
                           ),
                         ),
                         const SizedBox(height: 16),
                         // User Name
                         Text(
                           widget.userProfile?.displayname ?? 'User Name',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: colorScheme.onPrimary,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           '@${widget.userProfile?.login ?? 'username'}',
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: colorScheme.onPrimary.withOpacity(0.7),
                             fontSize: 16,
                           ),
                         ),
@@ -89,14 +92,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: colorScheme.onPrimary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white.withOpacity(0.3)),
+                            border: Border.all(color: colorScheme.onPrimary.withOpacity(0.3)),
                           ),
                           child: Text(
                             widget.userProfile?.kind?.toUpperCase() ?? 'STUDENT',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1,
@@ -111,14 +114,14 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
+                icon: Icon(Icons.edit, color: colorScheme.onPrimary),
                 onPressed: () {
                   // Edit profile functionality
                   _showEditProfileDialog();
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.settings, color: Colors.white),
+                icon: Icon(Icons.settings, color: colorScheme.onPrimary),
                 onPressed: () {
                   // Settings functionality
                 },
@@ -141,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           icon: Icons.stars,
                           title: 'Correction Points',
                           value: '${widget.userProfile?.correctionPoint ?? 0}',
-                          color: Colors.amber,
+                          color: colorScheme.tertiary,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -150,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           icon: Icons.account_balance_wallet,
                           title: 'Wallet',
                           value: '${widget.userProfile?.wallet ?? 0}',
-                          color: Colors.green,
+                          color: colorScheme.secondary,
                         ),
                       ),
                     ],
@@ -169,12 +172,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 24),
 
                   // Profile Actions
-                  const Text(
+                  Text(
                     'Profile Actions',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -202,14 +205,16 @@ class _ProfilePageState extends State<ProfilePage> {
     required String value,
     required Color color,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -231,7 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
             title,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -241,14 +246,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildPersonalInfoCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -257,12 +264,12 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Personal Information',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -276,14 +283,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildAccountDetailsCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -292,12 +301,12 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Account Details',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -312,12 +321,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
+          Icon(icon, size: 20, color: colorScheme.onSurfaceVariant.withOpacity(0.7)),
           const SizedBox(width: 12),
           Expanded(
             flex: 2,
@@ -325,7 +336,7 @@ class _ProfilePageState extends State<ProfilePage> {
               '$label:',
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -333,8 +344,8 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 3,
             child: Text(
               value,
-              style: const TextStyle(
-                color: Colors.black87,
+              style: TextStyle(
+                color: colorScheme.onSurface,
               ),
             ),
           ),
@@ -344,13 +355,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileActions() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Expanded(
           child: _buildActionButton(
             icon: Icons.security,
             title: 'Privacy',
-            color: Colors.blue,
+            color: colorScheme.primary,
             onTap: () {
               _showPrivacySettings();
             },
@@ -361,7 +374,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: _buildActionButton(
             icon: Icons.download,
             title: 'Export Data',
-            color: Colors.orange,
+            color: colorScheme.secondary,
             onTap: () {
               _exportUserData();
             },
@@ -372,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: _buildActionButton(
             icon: Icons.share,
             title: 'Share Profile',
-            color: Colors.purple,
+            color: colorScheme.tertiary,
             onTap: () {
               _shareProfile();
             },
@@ -388,17 +401,19 @@ class _ProfilePageState extends State<ProfilePage> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: colorScheme.shadow.withOpacity(0.1),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -410,10 +425,10 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -424,14 +439,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildPreferencesCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -440,12 +457,12 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Preferences',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -453,13 +470,14 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: Icons.dark_mode,
             title: 'Dark Mode',
             subtitle: 'Switch to dark theme',
-            value: false,
+            value: context.watch<ThemeCubit>().state == ThemeMode.dark,
             onChanged: (value) {
               final themeCubit = context.read<ThemeCubit>();
               themeCubit.toggleTheme();
-              // setState(() {
-              //   value = !value;
-              // });
+              setState(() {
+                // Force rebuild to apply theme changes
+                value = context.watch<ThemeCubit>().state == ThemeMode.dark;
+              });
             },
           ),
           _buildPreferenceItem(
@@ -472,33 +490,33 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           _buildPreferenceItem(
-            color: Colors.red[50],
+            color: colorScheme.errorContainer,
             icon: Icons.logout,
             title: 'Logout',
-            subtitle: 'English',
+            subtitle: 'Sign out of your account',
             isSwitch: false,
             onTap: () async {
-               // i want to show dialog to confirm logout
+              // i want to show dialog to confirm logout
               final shouldLogout = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Confirm Logout'),
-                  content: const Text('Are you sure you want to log out?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () async{
-                        await widget.logOutUseCase.call();
-                        context.go('/login');
-                        Navigator.pop(context, true);
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ));
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Confirm Logout'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async{
+                          await widget.logOutUseCase.call();
+                          context.go('/login');
+                          Navigator.pop(context, true);
+                        },
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ));
             },
           ),
         ],
@@ -516,21 +534,23 @@ class _ProfilePageState extends State<ProfilePage> {
     ValueChanged<bool>? onChanged,
     VoidCallback? onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListTile(
-      tileColor: color ?? Colors.white,
+      tileColor: color ?? colorScheme.surface,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: Colors.grey[600]),
+      leading: Icon(icon, color: colorScheme.onSurfaceVariant.withOpacity(0.7)),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w500,
-          color: Colors.black87,
+          color: colorScheme.onSurface,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          color: Colors.grey[600],
+          color: colorScheme.onSurfaceVariant.withOpacity(0.7),
           fontSize: 12,
         ),
       ),
@@ -538,9 +558,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ? Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: const Color(0xFF6a11cb),
+        activeColor: colorScheme.primary,
       )
-          : const Icon(Icons.arrow_forward_ios, size: 16),
+          : Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurfaceVariant),
       onTap: isSwitch ? null : onTap,
     );
   }

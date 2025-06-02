@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
-import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit.dart';
-import 'package:the_elsewheres/ui/view_models/home_cubit/home_state.dart';
+import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit/home_cubit.dart';
+import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit/home_state.dart';
 
 class EventDetailsModal extends StatelessWidget {
   final NewEventModel event;
@@ -14,15 +14,18 @@ class EventDetailsModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
@@ -32,7 +35,7 @@ class EventDetailsModal extends StatelessWidget {
                 height: 4,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: colorScheme.outline,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -50,35 +53,35 @@ class EventDetailsModal extends StatelessWidget {
                         child: Container(
                           height: 200,
                           width: double.infinity,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Color(0xFF667eea),
-                                Color(0xFF764ba2),
+                                colorScheme.primary,
+                                colorScheme.primaryContainer,
                               ],
                             ),
                           ),
-                          child: (event.eventImage != null && event.eventImage!.isNotEmpty)
+                          child: (event.eventImage.isNotEmpty)
                               ? Image.network(
-                            event.eventImage!,
+                            event.eventImage,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Center(
+                              return Center(
                                 child: Icon(
                                   Icons.event,
                                   size: 64,
-                                  color: Colors.white,
+                                  color: colorScheme.onPrimary,
                                 ),
                               );
                             },
                           )
-                              : const Center(
+                              : Center(
                             child: Icon(
                               Icons.event,
                               size: 64,
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                             ),
                           ),
                         ),
@@ -93,19 +96,18 @@ class EventDetailsModal extends StatelessWidget {
                           Expanded(
                             child: Text(
                               event.eventName,
-                              style: const TextStyle(
-                                fontSize: 24,
+                              style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: colorScheme.onSurface,
                               ),
                             ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.amber.shade50,
+                              color: colorScheme.tertiaryContainer,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.amber.shade200),
+                              border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -113,14 +115,13 @@ class EventDetailsModal extends StatelessWidget {
                                 Icon(
                                   Icons.star,
                                   size: 16,
-                                  color: Colors.amber.shade600,
+                                  color: colorScheme.tertiary,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   event.rate.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    color: Colors.amber.shade800,
-                                    fontSize: 14,
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    color: colorScheme.onTertiaryContainer,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -136,15 +137,14 @@ class EventDetailsModal extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF667eea).withOpacity(0.1),
+                          color: colorScheme.secondaryContainer,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF667eea).withOpacity(0.3)),
+                          border: Border.all(color: colorScheme.secondary.withOpacity(0.3)),
                         ),
                         child: Text(
                           event.tag,
-                          style: const TextStyle(
-                            color: Color(0xFF667eea),
-                            fontSize: 14,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSecondaryContainer,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -153,20 +153,18 @@ class EventDetailsModal extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // Description
-                      const Text(
+                      Text(
                         'Description',
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         event.eventDescription,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade700,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                           height: 1.5,
                         ),
                       ),
@@ -174,20 +172,19 @@ class EventDetailsModal extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Event Details
-                      const Text(
+                      Text(
                         'Event Details',
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),
 
-                      _buildDetailRow('Start Date', DateFormat('EEEE, MMMM dd, yyyy').format(event.startDate)),
-                      _buildDetailRow('End Date', DateFormat('EEEE, MMMM dd, yyyy').format(event.endDate)),
-                      _buildDetailRow('Campus', event.location.campus),
-                      _buildDetailRow('Venue', event.location.place),
+                      _buildDetailRow(context, 'Start Date', DateFormat('EEEE, MMMM dd, yyyy hh:mm a').format(event.startDate)),
+                      _buildDetailRow(context, 'End Date', DateFormat('EEEE, MMMM dd, yyyy hh:mm a').format(event.endDate)),
+                      _buildDetailRow(context, 'Campus', event.location.campus),
+                      _buildDetailRow(context, 'Venue', event.location.place),
 
                       const SizedBox(height: 30),
 
@@ -198,14 +195,14 @@ class EventDetailsModal extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(state.message),
-                                backgroundColor: Colors.green,
+                                backgroundColor: colorScheme.primary,
                               ),
                             );
                           } else if (state is RegisterEventErrorState) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(state.errorMessage),
-                                backgroundColor: Colors.red,
+                                backgroundColor: colorScheme.error,
                               ),
                             );
                           }
@@ -234,12 +231,12 @@ class EventDetailsModal extends StatelessWidget {
                                     }
                                   },
                                   icon: isLoading
-                                      ? const SizedBox(
+                                      ? SizedBox(
                                     width: 16,
                                     height: 16,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
                                     ),
                                   )
                                       : Icon(
@@ -252,9 +249,11 @@ class EventDetailsModal extends StatelessWidget {
                                   ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: isUserRegistered
-                                        ? Colors.red.shade600
-                                        : const Color(0xFF667eea),
-                                    foregroundColor: Colors.white,
+                                        ? colorScheme.error
+                                        : colorScheme.primary,
+                                    foregroundColor: isUserRegistered
+                                        ? colorScheme.onError
+                                        : colorScheme.onPrimary,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -266,17 +265,17 @@ class EventDetailsModal extends StatelessWidget {
                               ElevatedButton.icon(
                                 onPressed: isLoading ? null : () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Event shared!'),
-                                      backgroundColor: Colors.blue,
+                                    SnackBar(
+                                      content: const Text('Event shared!'),
+                                      backgroundColor: colorScheme.secondary,
                                     ),
                                   );
                                 },
                                 icon: const Icon(Icons.share),
                                 label: const Text('Share'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: colorScheme.secondary,
+                                  foregroundColor: colorScheme.onSecondary,
                                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -295,23 +294,22 @@ class EventDetailsModal extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
+                            color: colorScheme.surfaceContainer,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.shade200),
+                            border: Border.all(color: colorScheme.outlineVariant),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.people,
                                 size: 16,
-                                color: Colors.grey.shade600,
+                                color: colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 '${event.registeredUsers!.length} people registered',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade700,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -328,8 +326,10 @@ class EventDetailsModal extends StatelessWidget {
       },
     );
   }
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-  Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -339,9 +339,8 @@ class EventDetailsModal extends StatelessWidget {
             width: 100,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -349,9 +348,8 @@ class EventDetailsModal extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.w500,
               ),
             ),

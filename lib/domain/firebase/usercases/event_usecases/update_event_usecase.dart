@@ -6,7 +6,7 @@ class UpdateNewEventUseCase {
 
   UpdateNewEventUseCase(this._eventRepository);
 
-  Future<void> call(String eventId, NewEventModel event, bool updateImage) async {
-    await _eventRepository.updateEvent(eventId, event.toDto(), updateImage);
+  Future<void> call(String eventId, NewEventModel event) async {
+    await _eventRepository.updateEvent(eventId, event.toDto());
   }
 }

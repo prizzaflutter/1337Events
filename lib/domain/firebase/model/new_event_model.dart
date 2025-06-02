@@ -1,6 +1,8 @@
 import 'package:the_elsewheres/data/firebase/model/new_event_model_dto.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 
 class NewEventModel {
+  final List<FeedBackModel> feedbacks;
   int id = DateTime.now().millisecondsSinceEpoch;
   final List<String> registeredUsers;
   final String eventImage;
@@ -13,6 +15,7 @@ class NewEventModel {
   final LocationEventModel location;
 
   NewEventModel({
+    required this.feedbacks,
     required this.registeredUsers,
     required this.id,
     required this.eventImage,
@@ -27,7 +30,8 @@ class NewEventModel {
 
 
  NewEventModel copyWith({
-    List<String>? registeredUsers,
+    List<FeedBackModel>? feedbacks,
+   List<String>? registeredUsers,
    int? id,
     String? eventImage,
     double? rate,
@@ -39,6 +43,7 @@ class NewEventModel {
     LocationEventModel? location,
   }) {
     return NewEventModel(
+      feedbacks: feedbacks ?? this.feedbacks,
       registeredUsers: registeredUsers ?? this.registeredUsers,
       id: id ?? this.id,
       eventImage: eventImage ?? this.eventImage,
@@ -54,6 +59,7 @@ class NewEventModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'feedbacks': feedbacks,
       'registeredUsers': registeredUsers,
       'id': id,
       'EventImage': eventImage,
@@ -69,6 +75,7 @@ class NewEventModel {
 
   NewEventModelDto toDto() {
     return NewEventModelDto(
+      feedbacks: feedbacks,
       registeredUsers: registeredUsers,
       id: id,
       eventImage: eventImage,

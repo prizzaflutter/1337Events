@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/delete_event_usecase.dart';
@@ -18,7 +19,7 @@ class EventCubit extends Cubit<EventState> {
   final StudentListenEventUseCase _studentListenEventUseCase;
   EventCubit(this._addNewEventUseCase, this._updateNewEventUseCase, this._deleteEventUseCase, this._staffListenEventUseCase, this._studentListenEventUseCase) : super(EventInitial());
 
-  Future<void> addNewEvent(NewEventModel event, {required String filePath}) async {
+  Future<void> addNewEvent(FeedBackModel feedBackModel ,NewEventModel event, {required String filePath}) async {
     emit(AddNewEventLoadingState()) ;
     try {
       await _addNewEventUseCase.call(event, filePath: filePath);
@@ -30,7 +31,7 @@ class EventCubit extends Cubit<EventState> {
   Future<void> updateEvent(String eventId, NewEventModel event, bool updateImage) async {
     emit(UpdateNewEventLoadingState());
     try {
-      await _updateNewEventUseCase.call(eventId, event, updateImage);
+      await _updateNewEventUseCase.call(eventId, event);
       emit(UpdateNewEventSuccessState());
     } catch (e) {
       emit(UpdateNewEventErrorState(e.toString()));

@@ -15,13 +15,14 @@ import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/repository/FirebaseRepository.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/add_new_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/delete_event_usecase.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/event_need_feedback_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/staff_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/student_listen_to_upcoming_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/event_usecases/update_event_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/register_unregister_usecase/register_usecase.dart';
 import 'package:the_elsewheres/domain/firebase/usercases/save_user_profile_usecase.dart';
-import 'package:the_elsewheres/ui/view_models/home_cubit/home_cubit.dart';
+import 'package:the_elsewheres/domain/firebase/usercases/submet_feedback_usecase.dart';
 import 'package:the_elsewheres/ui/view_models/login_cubit/login_cubit.dart';
 
 GetIt getIt = GetIt.instance;
@@ -83,6 +84,14 @@ class GetItService {
     );
     getIt.registerSingleton<StudentListenToUpComingEventUseCase>(StudentListenToUpComingEventUseCase(getIt<FirebaseRepository>()));
   getIt.registerSingleton<RegisterUseCase>(RegisterUseCase(
+    getIt<FirebaseRepository>(),
+  ));
+
+  getIt.registerSingleton<EventNeedFeedbackUseCase>(EventNeedFeedbackUseCase(
+    firebaseRepository: getIt<FirebaseRepository>(),
+  ));
+
+  getIt.registerSingleton<SubmitFeedBackUseCase>(SubmitFeedBackUseCase(
     getIt<FirebaseRepository>(),
   ));
   }

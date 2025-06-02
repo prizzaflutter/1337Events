@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/dependency_injection/dependency_injection.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/Oauth/usecases/logged_out_usecase.dart';
@@ -29,13 +28,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _pages = [
       HomePage(
         userProfile: widget.userProfile,
-        isStaff: _isStaff,
+        isStaff: !_isStaff,
       ),
       ProfilePage(userProfile: widget.userProfile, logOutUseCase: getIt<LogOutUseCase>()),
     ];
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -43,53 +40,28 @@ class _HomeScreenState extends State<HomeScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getAppBarTitle()),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.account_circle,
-              color: colorScheme.onPrimary,
-            ),
-            onPressed: () {
-              context.go('/profile', extra: widget.userProfile);
-            },
-          ),
-        ],
-      ),
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
       ),
       backgroundColor: colorScheme.surface,
-      // Floating Bottom Navigation Bar
+      // Modern Floating Bottom Navigation Bar
       floatingActionButton: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(25),
+          // Removed shadow completely
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(25),
           child: Container(
-            height: 70,
+            height: 65,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  colorScheme.primary,
-                  colorScheme.primaryContainer,
-                ],
+              // Modern glass-like background
+              color: colorScheme.surface.withOpacity(0.95),
+              border: Border.all(
+                color: colorScheme.outline.withOpacity(0.2),
+                width: 1,
               ),
             ),
             child: Row(
@@ -99,6 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icons.home_rounded,
                   label: 'Home',
                   index: 0,
+                ),
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: colorScheme.outline.withOpacity(0.2),
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
                 ),
                 _buildNavItem(
                   icon: Icons.person_rounded,
@@ -112,17 +90,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
-  }
-
-  String _getAppBarTitle() {
-    switch (_selectedIndex) {
-      case 0:
-        return 'Home';
-      case 1:
-        return 'Profile';
-      default:
-        return 'Home';
-    }
   }
 
   Widget _buildNavItem({
@@ -141,40 +108,51 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? colorScheme.onPrimary.withOpacity(0.2)
+              ? colorScheme.primary.withOpacity(0.15)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: isSelected
-              ? Border.all(
-              color: colorScheme.onPrimary.withOpacity(0.3),
-              width: 1
-          )
-              : null,
+          borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: colorScheme.onPrimary,
-              size: isSelected ? 26 : 24,
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: colorScheme.onPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: Icon(
+                icon,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.onSurface.withOpacity(0.6),
+                size: isSelected ? 26 : 24,
               ),
-            ],
+            ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: isSelected
+                  ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 12),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              )
+                  : const SizedBox.shrink(),
+            ),
           ],
         ),
       ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as Dialogs;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
+import 'package:the_elsewheres/ui/home/pages/home_page/home_page_wdigets/show_feedback_dialog_widget.dart';
 import 'package:the_elsewheres/ui/home/pages/manage_events/Edit_event.dart';
 import 'package:the_elsewheres/ui/view_models/event_cubit/event_cubit.dart';
 
@@ -291,15 +293,15 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     ];
 
     return SizedBox(
-      height: 110.h, // Fixed height for the grid
+      height: 115.h, // Fixed height for the grid
       child: GridView.builder(
         scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          mainAxisExtent: 100,
+          mainAxisExtent: 115,
           crossAxisCount: 1, // 2 columns
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
-          childAspectRatio: 10/6, // Adjust the aspect ratio as needed
+          childAspectRatio: 1.5, // Adjust the aspect ratio as needed
         ),
         itemCount: statsData.length,
         itemBuilder: (context, index) {
@@ -691,21 +693,6 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
     print('Navigate to Add Event');
   }
 
-  void _refreshEvents() {
-    context.read<EventCubit>().listenToEventsForStaff();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Refreshing events...')),
-    );
-  }
-
-
-  void _exportEvents() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Exporting events...')),
-    );
-  }
-
-
 
   void _viewEventDetails(NewEventModel event) {
     showModalBottomSheet(
@@ -718,21 +705,33 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
 
   Widget _buildEventDetailsSheet(NewEventModel event) {
     final colorScheme = Theme.of(context).colorScheme;
+    final now = DateTime.now();
+    final isUpcoming = event.startDate.isAfter(now);
+    final isPast = event.endDate.isBefore(now);
+    final isActive = event.startDate.isBefore(now) && event.endDate.isAfter(now);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
-      maxChildSize: 0.9,
+      maxChildSize: 0.95,
       minChildSize: 0.5,
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
           child: Column(
             children: [
+              // Drag handle
               Container(
-                margin: const EdgeInsets.only(top: 8),
+                margin: const EdgeInsets.only(top: 12),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
@@ -740,95 +739,200 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
+
+              // Header with image and title
+              Container(
+                width: double.infinity,
+                height: 200,
+                margin: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: colorScheme.surfaceVariant,
+                ),
+                child: Stack(
+                  children: [
+                    // Event image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: event.eventImage != null && event.eventImage!.isNotEmpty
+                          ? Image.network(
+                        event.eventImage!,
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: double.infinity,
+                          height: 200,
+                          color: colorScheme.surfaceVariant,
+                          child: Icon(
+                            Icons.event,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 64,
+                          ),
+                        ),
+                      )
+                          : Container(
+                        width: double.infinity,
+                        height: 200,
+                        color: colorScheme.surfaceVariant,
+                        child: Icon(
+                          Icons.event,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 64,
+                        ),
+                      ),
+                    ),
+
+                    // Gradient overlay
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Status chip positioned at top right
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: _buildStatusChip(colorScheme, isUpcoming, isPast, isActive),
+                    ),
+
+                    // Title and tag at bottom
+                    Positioned(
+                      bottom: 16,
+                      left: 16,
+                      right: 16,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primaryContainer.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              event.tag,
+                              style: TextStyle(
+                                color: colorScheme.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            event.eventName,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Scrollable content
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        event.eventName,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                      // Description section
+                      _buildSectionHeader('About This Event', Icons.description, colorScheme),
+                      const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(20),
+                          color: colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colorScheme.outline.withOpacity(0.2),
+                          ),
                         ),
                         child: Text(
-                          event.tag,
+                          event.eventDescription,
                           style: TextStyle(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            height: 1.5,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Description',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.primary,
+
+                      const SizedBox(height: 24),
+
+                      // Event Details section
+                      _buildSectionHeader('Event Details', Icons.info_outline, colorScheme),
+                      const SizedBox(height: 12),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colorScheme.outline.withOpacity(0.2),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        event.eventDescription,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildDetailRow('Start Date',
-                          '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
-                          Icons.schedule, colorScheme),
-                      _buildDetailRow('End Date',
-                          '${event.endDate.day}/${event.endDate.month}/${event.endDate.year} ${event.endDate.hour.toString().padLeft(2, '0')}:${event.endDate.minute.toString().padLeft(2, '0')}',
-                          Icons.schedule_outlined, colorScheme),
-                      _buildDetailRow('Location', '${event.location.campus}, ${event.location.place}', Icons.location_on, colorScheme),
-                      // todo : should i set event.capaity peaope insted of 10
-                      _buildDetailRow('Capacity', '10 people', Icons.people, colorScheme),
-                      if (event.eventImage != null && event.eventImage!.isNotEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Column(
                           children: [
-                            const SizedBox(height: 16),
-                            Text(
-                              'Event Image',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.primary,
-                              ),
+                            _buildEnhancedDetailRow(
+                              'Start Date & Time',
+                              '${event.startDate.day}/${event.startDate.month}/${event.startDate.year}',
+                              '${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
+                              Icons.schedule,
+                              colorScheme,
+                              isFirst: true,
                             ),
-                            const SizedBox(height: 8),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                event.eventImage!,
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  width: double.infinity,
-                                  height: 200,
-                                  color: colorScheme.surfaceVariant,
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    color: colorScheme.onSurfaceVariant,
-                                    size: 48,
-                                  ),
-                                ),
-                              ),
+                            _buildDivider(colorScheme),
+                            _buildEnhancedDetailRow(
+                              'End Date & Time',
+                              '${event.endDate.day}/${event.endDate.month}/${event.endDate.year}',
+                              '${event.endDate.hour.toString().padLeft(2, '0')}:${event.endDate.minute.toString().padLeft(2, '0')}',
+                              Icons.schedule_outlined,
+                              colorScheme,
+                            ),
+                            _buildDivider(colorScheme),
+                            _buildEnhancedDetailRow(
+                              'Location',
+                              event.location.campus,
+                              event.location.place,
+                              Icons.location_on,
+                              colorScheme,
+                            ),
+                            _buildDivider(colorScheme),
+                            _buildEnhancedDetailRow(
+                              'Capacity',
+                              '10 people', // You mentioned using event.capacity instead
+                              'Available spots',
+                              Icons.people,
+                              colorScheme,
+                              isLast: true,
                             ),
                           ],
                         ),
-                      const SizedBox(height: 30),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Action buttons
                       Row(
                         children: [
                           Expanded(
@@ -837,8 +941,39 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                                 Navigator.pop(context);
                                 _editEvent(event);
                               },
-                              icon: const Icon(Icons.edit),
+                              icon: const Icon(Icons.edit, size: 18),
                               label: const Text('Edit Event'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Dialogs.showDialog(
+                                  context: context,
+                                  builder: (context) => EventFeedbacksDialog( feedbacks: event.feedbacks,eventName:  event.eventName)
+                                   ,
+                                );
+                              },
+                              icon: const Icon(Icons.reviews, size: 18),
+                              label: const Text('View Feedbacks'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: colorScheme.primary,
+                                side: BorderSide(color: colorScheme.primary),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -848,16 +983,22 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
                                 Navigator.pop(context);
                                 _deleteEvent(event);
                               },
-                              icon: const Icon(Icons.delete),
+                              icon: const Icon(Icons.delete, size: 18),
                               label: const Text('Delete'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: colorScheme.error,
                                 side: BorderSide(color: colorScheme.error),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
+
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
@@ -866,6 +1007,113 @@ class _ManageEventsState extends State<ManageEvents> with TickerProviderStateMix
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon, ColorScheme colorScheme) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEnhancedDetailRow(
+      String label,
+      String primaryValue,
+      String secondaryValue,
+      IconData icon,
+      ColorScheme colorScheme, {
+        bool isFirst = false,
+        bool isLast = false,
+      }) {
+    return Container(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: isFirst ? 16 : 12,
+        bottom: isLast ? 16 : 12,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  primaryValue,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                if (secondaryValue.isNotEmpty)
+                  Text(
+                    secondaryValue,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider(ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Divider(
+        height: 1,
+        color: colorScheme.outline.withOpacity(0.2),
+      ),
     );
   }
 

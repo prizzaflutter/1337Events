@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 
 class NewEventModelDto {
+  final List<FeedBackModel> feedbacks;
   final int id;
   final List<String> registeredUsers;
   final String eventImage;
@@ -14,6 +16,7 @@ class NewEventModelDto {
   final double rate;
 
   NewEventModelDto({
+    required this.feedbacks,
     required this.registeredUsers,
     required this.id,
     required this.eventImage,
@@ -33,6 +36,9 @@ class NewEventModelDto {
     }
 
     return NewEventModelDto(
+      feedbacks: (data['feedbacks'] as List<dynamic>?)
+          ?.map((feedback) => FeedBackModel.fromJson(feedback as Map<String, dynamic>))
+          .toList() ?? [],
       registeredUsers: List<String>.from(data['registeredUsers'] ?? []),
       id: _parseId(doc.id),
       eventImage: data['eventImage'] as String? ?? '',
@@ -86,6 +92,7 @@ class NewEventModelDto {
 
   NewEventModel toDomain() {
     return NewEventModel(
+      feedbacks: feedbacks,
       registeredUsers: registeredUsers,
       id: id,
       eventImage: eventImage,
@@ -111,6 +118,7 @@ class NewEventModelDto {
     double? rate,
   }) {
     return NewEventModelDto(
+      feedbacks: feedbacks,
       registeredUsers: List<String>.from(registeredUsers),
       id: id ?? this.id,
       eventImage: eventImage ?? this.eventImage,

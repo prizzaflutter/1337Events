@@ -244,24 +244,6 @@ class _EditEventPageState extends State<EditEventPage> with TickerProviderStateM
                     : _buildImagePlaceholder(colorScheme),
               ),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _eventImageController,
-              decoration: InputDecoration(
-                labelText: 'Image URL',
-                hintText: 'Enter image URL',
-                prefixIcon: const Icon(Icons.link),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                filled: true,
-                fillColor: colorScheme.surfaceContainer,
-              ),
-              validator: (value) {
-                if (value != null && value.isNotEmpty && !Uri.tryParse(value)!.isAbsolute) {
-                  return 'Please enter a valid URL';
-                }
-                return null;
-              },
-            ),
           ],
         ),
       ),
@@ -740,70 +722,6 @@ class _EditEventPageState extends State<EditEventPage> with TickerProviderStateM
     }
   }
 
-  void _handleMenuAction(String action) {
-    switch (action) {
-      case 'preview':
-        _previewEvent();
-        break;
-      case 'duplicate':
-        _duplicateEvent();
-        break;
-      case 'delete':
-        _deleteEvent();
-        break;
-    }
-  }
-
-  void _previewEvent() {
-    // Show preview dialog or navigate to preview page
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Preview feature coming soon')),
-    );
-  }
-
-  void _duplicateEvent() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event duplicated successfully')),
-    );
-  }
-
-  void _deleteEvent() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.warning, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete Event'),
-          ],
-        ),
-        content: Text('Are you sure you want to delete "${widget.event.eventName}"? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context); // Go back to manage events
-              context.read<EventCubit>().deleteEvent(widget.event.id.toString());
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${widget.event.eventName} deleted')),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _saveEvent() async {
     if (!_formKey.currentState!.validate()) {
@@ -844,21 +762,16 @@ class _EditEventPageState extends State<EditEventPage> with TickerProviderStateM
         eventName: _eventNameController.text.trim(),
         eventDescription: _eventDescriptionController.text.trim(),
         tag: _eventTagController.text.trim(),
-        eventImage: _eventImageController.text.trim().isEmpty
-            ? null
-            : _eventImageController.text.trim(),
-
         location: widget.event.location.copyWith(
           campus: _campusController.text.trim(),
           place: _placeController.text.trim(),
         ),
         startDate: startDateTime,
         endDate: endDateTime,
-        // eventCapacity: int.parse(_capacityController.text.trim()),
       );
 
       // Call your EventCubit update method
-      await context.read<EventCubit>().updateEvent(widget.event.id.toString(), updatedEvent, _eventImageController.text.trim().isNotEmpty);
+      await context.read<EventCubit>().updateEvent(widget.event.id.toString(), updatedEvent, false);
 
       if (mounted) {
         Navigator.pop(context, updatedEvent);

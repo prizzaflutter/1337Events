@@ -4,37 +4,49 @@ import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 import 'package:the_elsewheres/ui/home/pages/home_page/home_page.dart';
 import 'package:the_elsewheres/ui/home/pages/home_page/home_page_wdigets/event_model_widget.dart';
+import 'package:the_elsewheres/ui/home/pages/home_page/home_page_wdigets/feedback_dialog_widget.dart';
 
 class EventCompactCard extends StatelessWidget {
   final NewEventModel event;
   final UserProfile userProfile;
+  final isDetails;
 
-  const EventCompactCard({Key? key, required this.event, required this.userProfile}) : super(key: key);
+  const EventCompactCard({
+    Key? key,
+    required this.event,
+    required this.userProfile,
+    required this.isDetails,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          _showEventDetails(context, event);
+          if (isDetails) {
+            _showEventDetails(context, event);
+          } else {
+            _showFeedbackDialog(context);
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: colorScheme.shadow.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
-            border: Border.all(
-              color: const Color(0xFF667eea).withOpacity(0.1),
-            ),
+            border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
           ),
           child: Row(
             children: [
@@ -44,33 +56,31 @@ class EventCompactCard extends StatelessWidget {
                 height: 60,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF667eea),
-                      Color(0xFF764ba2),
-                    ],
+                    colors: [colorScheme.primary, colorScheme.secondary],
                   ),
                 ),
-                child: (event.eventImage != null && event.eventImage!.isNotEmpty)
+                child:
+                (event.eventImage != null && event.eventImage!.isNotEmpty)
                     ? ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
                     event.eventImage!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
+                      return Icon(
                         Icons.event,
-                        color: Colors.white,
+                        color: colorScheme.onPrimary,
                         size: 24,
                       );
                     },
                   ),
                 )
-                    : const Icon(
+                    : Icon(
                   Icons.event,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                   size: 24,
                 ),
               ),
@@ -84,10 +94,10 @@ class EventCompactCard extends StatelessWidget {
                   children: [
                     Text(
                       event.eventName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF333333),
+                        color: colorScheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -97,7 +107,7 @@ class EventCompactCard extends StatelessWidget {
                       DateFormat('MMM dd, yyyy').format(event.startDate),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -106,7 +116,7 @@ class EventCompactCard extends StatelessWidget {
                         Icon(
                           Icons.location_on,
                           size: 14,
-                          color: Colors.grey[500],
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -114,7 +124,7 @@ class EventCompactCard extends StatelessWidget {
                             event.location.campus,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[500],
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -130,24 +140,20 @@ class EventCompactCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
+                  color: colorScheme.tertiaryContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.star,
-                      size: 14,
-                      color: Colors.amber.shade600,
-                    ),
+                    Icon(Icons.star, size: 14, color: colorScheme.tertiary),
                     const SizedBox(width: 2),
                     Text(
                       event.rate.toStringAsFixed(1),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.amber.shade800,
+                        color: colorScheme.onTertiaryContainer,
                       ),
                     ),
                   ],
@@ -165,7 +171,22 @@ class EventCompactCard extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => EventDetailsModal(event: event, userProfile: userProfile),
+      builder:
+          (context) =>
+          EventDetailsModal(event: event, userProfile: userProfile),
+    );
+  }
+
+  void _showFeedbackDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return FeedbackDialog(
+          event: event,
+          userProfile: userProfile,
+        );
+      },
     );
   }
 }

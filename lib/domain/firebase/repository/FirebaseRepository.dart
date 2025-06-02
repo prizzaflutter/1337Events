@@ -1,5 +1,6 @@
 import 'package:the_elsewheres/data/firebase/model/new_event_model_dto.dart';
 import 'package:the_elsewheres/domain/Oauth/models/user_profile.dart';
+import 'package:the_elsewheres/domain/firebase/model/feedback_model.dart';
 import 'package:the_elsewheres/domain/firebase/model/new_event_model.dart';
 
 abstract class FirebaseRepository {
@@ -11,7 +12,7 @@ abstract class FirebaseRepository {
 
 // todo : event firestore management
  Future<void> addNewEvent(NewEventModel event, {required String filePath});
- Future<void> updateEvent (String eventId, NewEventModelDto updateEvent, bool updateImage);
+ Future<void> updateEvent (String eventId, NewEventModelDto updateEvent);
  Future<void> deleteEvent (String eventId);
  Stream<List<NewEventModelDto>> listenToEvents();
  Stream<List<NewEventModelDto>> listenToEventsByTags(List<String> tags);
@@ -27,4 +28,9 @@ abstract class FirebaseRepository {
   // todo : register/unregister event
    Future<void> registerToEvent(String eventId, String userId);
    Future<void> unregisterFromEvent(String eventId, String userId);
+
+
+   // todo : get Event that need feed back
+  Stream<List<NewEventModel>> getEventThatNeedFeedBackStream(String userId);
+ Future<void> submitFeedback({required String eventId, required FeedBackModel feedback});
 }
